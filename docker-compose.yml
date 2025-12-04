@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+
+  web:
+    image: nginx:alpine
+    container_name: moneda-website
+    ports:
+      - "8080:80"  # local LAN access
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    user: "0:0"  # run Nginx as root inside container for full file access
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token eyJhIjoiY2Q1YjA2MDNlNTkwODZiOTg5YTk4ZDY0N2VjZjAxNWUiLCJ0IjoiNTNlNGY1ZTItYzg3ZC00MTdhLThiYzEtZjIxNzIyOTgxNDU1IiwicyI6IllqSTJNR1ZqTVdZdE9HRmpOQzAwWTJNd0xXSm1ZV1V0TUdFeFlURTVPV0kzT1dFNCJ9
+    depends_on:
+      - web
