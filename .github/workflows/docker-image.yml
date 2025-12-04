@@ -3,8 +3,6 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   deploy:
@@ -23,7 +21,7 @@ jobs:
       #   run: npm run build
 
       - name: Upload website to NAS
-        uses: appleboy/scp-action@v0.1.8
+        uses: appleboy/scp-action@v4
         with:
           host: ${{ secrets.NAS_HOST }}
           username: ${{ secrets.NAS_USER }}
