@@ -19,3 +19,5 @@ services:
     command: tunnel --no-autoupdate run --token eyJhIjoiY2Q1YjA2MDNlNTkwODZiOTg5YTk4ZDY0N2VjZjAxNWUiLCJ0IjoiNTNlNGY1ZTItYzg3ZC00MTdhLThiYzEtZjIxNzIyOTgxNDU1IiwicyI6IllqSTJNR1ZqTVdZdE9HRmpOQzAwWTJNd0xXSm1ZV1V0TUdFeFlURTVPV0kzT1dFNCJ9
     depends_on:
       - web
+    volumes:
+      - ~/.ssh/github_key:/etc/cloudflared/github_key:ro  # mount private key
