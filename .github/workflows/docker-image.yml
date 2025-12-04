@@ -21,7 +21,7 @@ jobs:
       #   run: npm run build
 
       - name: Upload website to NAS
-        uses: appleboy/scp-action@v4
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.NAS_HOST }}
           username: ${{ secrets.NAS_USER }}
