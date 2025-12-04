@@ -1,0 +1,34 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    name: Deploy to NAS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Opcional: build de site estático (Next.js, Astro, Svelte, etc)
+      # - name: Install dependencies
+      #   run: npm install
+      #
+      # - name: Build project
+      #   run: npm run build
+
+      - name: Upload website to NAS
+        uses: appleboy/scp-action@v0.1.8
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          username: ${{ secrets.NAS_USER }}
+          password: ${{ secrets.NAS_PASS }}
+          port: 22
+          source: "web/*"
+          target: "/volume1/docker/moneda-bio/web"
+          strip_components: 1
