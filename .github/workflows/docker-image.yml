@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Deploy to NAS
 
 on:
   push:
@@ -13,20 +13,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Opcional: build de site estático (Next.js, Astro, Svelte, etc)
-      # - name: Install dependencies
-      #   run: npm install
-      #
-      # - name: Build project
-      #   run: npm run build
-
-      - name: Upload website to NAS
+      - name: Deploy via SFTP over Cloudflare Tunnel
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.NAS_HOST }}
           username: ${{ secrets.NAS_USER }}
-          password: ${{ secrets.NAS_PASS }}
-          port: 22
+          key: ${{ secrets.NAS_SSH_KEY }}
+          port: ${{ secrets.NAS_PORT }}
           source: "web/*"
           target: "/volume1/docker/moneda-bio/web"
           strip_components: 1
+          
+          
+          
+
