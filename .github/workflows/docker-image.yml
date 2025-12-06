@@ -34,4 +34,5 @@ jobs:
       - name: Update Files on NAS
         run: |
           # Command to run on your NAS
-          ssh ${{ secrets.NAS_HOST }} "cd /volume1/Docker/moneda-bio && git pull origin main"
+          ssh -v ${{ secrets.NAS_HOST }} "date"
+          # ssh ${{ secrets.NAS_HOST }} "cd /volume1/Docker/moneda-bio && git pull origin main"
