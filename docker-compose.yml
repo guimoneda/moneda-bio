@@ -11,6 +11,7 @@ services:
       - ./web:/usr/share/nginx/html:ro
     ports:
       - "8080:80" # Optional: Access locally via http://nas-ip:8080
+    user: "0:0" # Adjust to match your NAS user ID for proper permissions
 
   # 2. The Cloudflare Tunnel
   cloudflared:
