@@ -25,8 +25,8 @@ jobs:
           # Configure SSH to tunnel through Cloudflare
           # NOTE: Ensure 'ssh-moneda' matches your Cloudflare Public Hostname
           echo "Host nas
-            HostName ssh-moneda.guimoneda.com
-            User guimoneda
+            HostName ${{ secrets.NAS_HOST }} 
+            User ${{ secrets.NAS_USER }}
             IdentityFile ~/.ssh/id_ed25519
             StrictHostKeyChecking no
             ProxyCommand cloudflared access ssh --hostname %h" >> ~/.ssh/config
