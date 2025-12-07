@@ -36,4 +36,4 @@ jobs:
           # 1. Connect to NAS
           # 2. Go to your project folder
           # 3. Wipe the old 'web' folder content and replace with new files
-          ssh nas "cd /volume1/docker/moneda-bio/web && rm -rf ./* && git clone https://github.com/guimoneda/moneda-bio.git temp && mv temp/* . && rm -rf temp .git"
+          ssh nas "cd /volume1/docker/moneda-bio && rm -rf ./* && git clone https://github.com/guimoneda/moneda-bio.git temp && mv temp/* . && rm -rf temp .git"
