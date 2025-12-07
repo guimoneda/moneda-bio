@@ -2,17 +2,16 @@ name: Deploy to NAS
 
 on:
   push:
-    branches:
-      - main  # Trigger only on pushes to the main branch
+    branches: [ "main" ]
 
 jobs:
-  update-nas:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Install cloudflared
+      - name: Install Cloudflared
         run: |
           curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared.deb
@@ -21,18 +20,20 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 666 ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           
-          # Add Cloudflare config to SSH
-          # This tells SSH to pipe the connection through cloudflared
-          echo "Host ${{ secrets.NAS_HOST }}
-            User ${{ secrets.NAS_USER }}
+          # Configure SSH to tunnel through Cloudflare
+          # NOTE: Ensure 'ssh-moneda' matches your Cloudflare Public Hostname
+          echo "Host nas
+            HostName ssh-moneda.guimoneda.com
+            User guimoneda
             IdentityFile ~/.ssh/id_ed25519
             StrictHostKeyChecking no
             ProxyCommand cloudflared access ssh --hostname %h" >> ~/.ssh/config
 
-      - name: Update Files on NAS
+      - name: Deploy Files
         run: |
-          # Command to run on your NAS
-          ssh -v ${{ secrets.NAS_HOST }} "date"
-          # ssh ${{ secrets.NAS_HOST }} "cd /volume1/Docker/moneda-bio && git pull origin main"
+          # 1. Connect to NAS
+          # 2. Go to your project folder
+          # 3. Wipe the old 'web' folder content and replace with new files
+          ssh nas "cd /volume1/docker/moneda-bio/web && rm -rf ./* && git clone https://github.com/guimoneda/moneda-bio.git temp && mv temp/* . && rm -rf temp .git"
