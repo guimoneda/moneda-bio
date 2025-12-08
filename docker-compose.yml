@@ -40,7 +40,7 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
-    command: tunnel --no-autoupdate run --token eyJhIjoiY2Q1YjA2MDNlNTkwODZiOTg5YTk4ZDY0N2VjZjAxNWUiLCJ0IjoiNTNlNGY1ZTItYzg3ZC00MTdhLThiYzEtZjIxNzIyOTgxNDU1IiwicyI6IllqSTJNR1ZqTVdZdE9HRmpOQzAwWTJNd0xXSm1ZV1V0TUdFeFlURTVPV0kzT1dFNCJ9
+    command: tunnel --no-autoupdate run --token eyJhIjoiY2Q1YjA2MDNlNTkwODZiOTg5YTk4ZDY0N2VjZjAxNWUiLCJ0IjoiNTNlNGY1ZTItYzg3ZC00MTdhLThiYzEtZjIxNzIyOTgxNDU1IiwicyI6Ik16SmhOemxrTnpFdE1tRmtNaTAwWlRVeUxXRXdOall0TVRSa05qRXpZek16TmpneCJ9
     extra_hosts:
       - "host.docker.internal:host-gateway"
     # No ports needed, it talks to the containers internally
