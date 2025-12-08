@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['admin.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend']
 
+# Trust the secure Cloudflare domain for form submissions
+CSRF_TRUSTED_ORIGINS = ['https://admin.guimoneda.com']
 
 # Application definition
 
