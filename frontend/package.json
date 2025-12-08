@@ -1,0 +1,7 @@
+{
+  "name": "bio-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "echo 'React not installed yet. See Step 3' && sleep 1000"
+  }
+}

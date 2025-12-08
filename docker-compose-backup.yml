@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # 1. The Website Server
+  web:
+    image: nginx:alpine
+    container_name: bio-web
+    restart: unless-stopped
+    volumes:
+      # Maps a folder "html" next to this file to the web server
+      - ./web:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80" # Optional: Access locally via http://nas-ip:8080
+    user: "0:0" # Adjust to match your NAS user ID for proper permissions
+
+  # 2. The Cloudflare Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: bio-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token eyJhIjoiY2Q1YjA2MDNlNTkwODZiOTg5YTk4ZDY0N2VjZjAxNWUiLCJ0IjoiNTNlNGY1ZTItYzg3ZC00MTdhLThiYzEtZjIxNzIyOTgxNDU1IiwicyI6IllqSTJNR1ZqTVdZdE9HRmpOQzAwWTJNd0xXSm1ZV1V0TUdFeFlURTVPV0kzT1dFNCJ9
+    depends_on:
+      - web
+    extra_hosts:
+      # CRITICAL: Allows this container to talk to your NAS OS (SSH)
+      - "host.docker.internal:host-gateway"
