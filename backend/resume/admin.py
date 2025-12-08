@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Job
 
-# Register your models here.
+@admin.register(Job)
+class JobAdmin(admin.ModelAdmin):
+    list_display = ('title', 'company', 'start_date', 'is_current')
+    search_fields = ('title', 'company')
