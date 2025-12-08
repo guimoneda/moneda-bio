@@ -35,5 +35,6 @@ jobs:
         run: |
           # 1. Connect to NAS
           # 2. Go to your project folder
-          # 3. Wipe the old 'web' folder content and replace with new files
-          ssh nas "cd /volume1/docker/moneda-bio && git fetch origin main && git reset --hard origin/main && docker-compose restart"
+          # 3. Git fetch and reset to latest main
+          # 4. Restart Docker containers (except CF tunnel)
+          ssh nas "cd /volume1/docker/moneda-bio && git fetch origin main && git reset --hard origin/main && docker-compose restart backend frontend"
