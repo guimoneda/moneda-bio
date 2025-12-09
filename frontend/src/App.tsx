@@ -13,7 +13,6 @@ interface Job {
 }
 
 function App() {
-  console.log("--- VERSION 2.0 LOADED ---");  // <--- Add this line
   // 2. Create state variables to hold the data
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
