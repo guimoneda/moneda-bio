@@ -37,4 +37,4 @@ jobs:
           # 2. Go to your project folder
           # 3. Git fetch and reset to latest main
           # 4. Restart Docker containers (except CF tunnel)
-          ssh nas "cd /volume1/docker/moneda-bio && git fetch origin main && git reset --hard origin/main && docker-compose restart backend frontend"
+          ssh nas "cd /volume1/docker/moneda-bio && echo 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}' > .env && git fetch origin main && git reset --hard origin/main && docker-compose up -d"

@@ -44,7 +44,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
     restart: unless-stopped
-    command: tunnel --no-autoupdate run --token eyJhIjoiY2Q1YjA2MDNlNTkwODZiOTg5YTk4ZDY0N2VjZjAxNWUiLCJ0IjoiNTNlNGY1ZTItYzg3ZC00MTdhLThiYzEtZjIxNzIyOTgxNDU1IiwicyI6Ik9USmhOMkV5TkRVdFl6SXlZaTAwTW1Vd0xUazBaamt0TVdRMU5qTmtZalptTURjeiJ9
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     # No ports needed, it talks to the containers internally
