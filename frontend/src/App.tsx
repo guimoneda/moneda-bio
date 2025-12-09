@@ -13,6 +13,7 @@ interface Job {
 }
 
 function App() {
+  console.log("--- VERSION 2.0 LOADED ---");  // <--- Add this line
   // 2. Create state variables to hold the data
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +21,7 @@ function App() {
 
   // 3. The "Effect" Hook: Runs once when the page loads
   useEffect(() => {
-    fetch('/api/jobs/')
+    fetch('https://bio.guimoneda.com/api/jobs/')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
