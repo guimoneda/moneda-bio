@@ -38,7 +38,7 @@ jobs:
           # 3. Pull code and restart
           
           ssh nas "cd /volume1/docker/moneda-bio && \
-          printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\n' > .env && \
+          printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
           git fetch origin main && \
           git reset --hard origin/main && \
           docker-compose up -d"
