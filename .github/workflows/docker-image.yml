@@ -31,10 +31,14 @@ jobs:
             StrictHostKeyChecking no
             ProxyCommand cloudflared access ssh --hostname %h" >> ~/.ssh/config
 
-      - name: Deploy Files
+      - name: Deploy Files & Update Secrets
         run: |
-          # 1. Connect to NAS
-          # 2. Go to your project folder
-          # 3. Git fetch and reset to latest main
-          # 4. Restart Docker containers (except CF tunnel)
-          ssh nas "cd /volume1/docker/moneda-bio && echo 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}' > .env && git fetch origin main && git reset --hard origin/main && docker-compose up -d"
+          # 1. SSH into NAS
+          # 2. Create the .env file with ALL secrets (Tunnel + DB)
+          # 3. Pull code and restart
+          
+          ssh nas "cd /volume1/docker/moneda-bio && \
+          printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\n' > .env && \
+          git fetch origin main && \
+          git reset --hard origin/main && \
+          docker-compose up -d"
