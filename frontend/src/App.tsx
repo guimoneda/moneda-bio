@@ -41,7 +41,7 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>Guilherme Moneda</h1>
+        <h1>Guilherme Moneda Rodrigues</h1>
         <p className="subtitle">My Professional Journey</p>
       </header>
 
