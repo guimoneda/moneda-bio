@@ -1,24 +1,75 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 
+// 1. Define what a "Job" looks like (Must match your Django Serializer)
+interface Job {
+  id: number;
+  company: string;
+  title: string;
+  start_date: string;
+  end_date: string | null;
+  description: string;
+  is_current: boolean;
+}
+
 function App() {
+  // 2. Create state variables to hold the data
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // 3. The "Effect" Hook: Runs once when the page loads
+  useEffect(() => {
+    fetch('https://admin.guimoneda.com/api/jobs/')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setJobs(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching jobs:", err);
+        setError('Failed to load job history. Please try again later.');
+        setLoading(false);
+      });
+  }, []); // Empty array [] means "Run only once"
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+      <header>
+        <h1>Guilherme Moneda</h1>
+        <p className="subtitle">My Professional Journey</p>
       </header>
+
+      <main>
+        {loading && <p>Loading resume...</p>}
+        
+        {error && <p style={{color: 'red'}}>{error}</p>}
+
+        {jobs.map(job => (
+          <div key={job.id} className="job-card">
+            <div className="job-header">
+              <div>
+                <span className="job-title">{job.title}</span>
+                {job.is_current && <span className="current-badge">Current</span>}
+              </div>
+              <span className="job-dates">
+                {job.start_date} — {job.end_date ? job.end_date : 'Present'}
+              </span>
+            </div>
+            
+            <div className="job-company">{job.company}</div>
+            
+            <div className="job-description">
+              {job.description}
+            </div>
+          </div>
+        ))}
+      </main>
     </div>
   );
 }

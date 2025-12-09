@@ -1,38 +1,41 @@
 .App {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+header {
   text-align: center;
+  margin-bottom: 40px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1 { font-size: 2.5rem; margin-bottom: 10px; }
+p.subtitle { color: #666; font-size: 1.2rem; }
+
+.job-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
+.job-card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.job-header { display: flex; justify-content: space-between; align-items: baseline; }
+.job-title { font-weight: bold; font-size: 1.2rem; color: #007bff; }
+.job-company { font-weight: 600; }
+.job-dates { color: #888; font-size: 0.9rem; }
+.current-badge {
+  background-color: #28a745;
   color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-left: 10px;
 }
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+.job-description { margin-top: 15px; white-space: pre-wrap; line-height: 1.6; }
