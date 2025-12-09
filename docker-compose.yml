@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_DB: bio_db
       POSTGRES_USER: guimoneda
-      POSTGRES_PASSWORD: 0091
+      POSTGRES_PASSWORD: oE4X1!pAssw0rd
 
   # 2. THE BACKEND (Django)
   backend:
@@ -23,7 +23,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgres://guimoneda:0091@db:5432/bio_db
+      DATABASE_URL: postgres://guimoneda:oE4X1!pAssw0rd@db:5432/bio_db
 
   # 3. THE FRONTEND (React/Node)
   frontend:
