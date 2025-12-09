@@ -26,10 +26,10 @@ SECRET_KEY = 'django-insecure-2#d483fma_iv-s5cis0og14%d!7#8a-2&268zd4)3as@8sw4dp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['admin.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend']
+ALLOWED_HOSTS = ['bio.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend']
 
 # Trust the secure Cloudflare domain for form submissions
-CSRF_TRUSTED_ORIGINS = ['https://admin.guimoneda.com']
+CSRF_TRUSTED_ORIGINS = ['https://bio.guimoneda.com']
 
 # Application definition
 

@@ -20,7 +20,7 @@ function App() {
 
   // 3. The "Effect" Hook: Runs once when the page loads
   useEffect(() => {
-    fetch('https://admin.guimoneda.com/api/jobs/')
+    fetch('/api/jobs/')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
