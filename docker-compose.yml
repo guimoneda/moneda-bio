@@ -30,11 +30,14 @@ services:
     image: node:18-alpine
     container_name: bio-frontend
     working_dir: /app
+    environment:
+        WDS_SOCKET_PORT=0
     volumes:
       - ./frontend:/app
     command: npm start
     ports:
       - "3000:3000"
+    
 
   # 4. THE TUNNEL
   cloudflared:
