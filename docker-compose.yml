@@ -25,7 +25,7 @@ services:
     depends_on:
       - db
     environment:
-      SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       # dynamically build the URL using the same variables
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       ALLOWED_HOSTS: 'bio.guimoneda.com,localhost,127.0.0.1'
