@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 import dj_database_url
 from pathlib import Path
 
@@ -20,11 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2#d483fma_iv-s5cis0og14%d!7#8a-2&268zd4)3as@8sw4dp'
+# We use a default just in case, but in production, it MUST use the env var
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+# Optional: Add a safety check to crash if the key is missing in production
+if not SECRET_KEY and not DEBUG:
+    raise ValueError("No DJANGO_SECRET_KEY set for production")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['bio.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend']
 
