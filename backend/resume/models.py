@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 class Job(models.Model):
     company = models.CharField(max_length=200)
@@ -7,7 +8,11 @@ class Job(models.Model):
     end_date = models.DateField(null=True, blank=True) # Null means "Present"
     description = models.TextField()
     is_current = models.BooleanField(default=False)
-    tags = models.CharField(max_length=20, blank=True)
+    technologies = ArrayField(
+        models.CharField(max_length=20, blank=True),
+        blank=True,
+        default=list
+    )
     
     # This makes it sort automatically by newest first
     class Meta:

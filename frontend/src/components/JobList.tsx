@@ -8,7 +8,7 @@ interface Job {
   company: string;
   description: string;
   start_date?: string;
-  tags?: string;
+  technologies?: string[];
   // technologies?: string[]; // If your API returns a list of tags
 }
 
@@ -68,10 +68,22 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
             </p>
 
             {/* If your API has technologies, loop them here. Otherwise, hardcode a placeholder */}
-            <div className="flex flex-wrap gap-2 mt-auto">
-               <span className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md">
-                 {job.tags}
-               </span>
+            <div className="flex flex-wrap gap-2 mt-auto pt-4">
+                {/* 1. Check if tags exist */}
+                {job.technologies && job.technologies.length > 0 ? (
+                    // 2. Slice to take only the first 3
+                    job.technologies.slice(0, 3).map((technologies, index) => (
+                    <span 
+                        key={index} 
+                        className="px-2 py-1 text-xs font-medium bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 rounded-md"
+                    >
+                        {technologies}
+                    </span>
+                    ))
+                ) : (
+                    // Optional: Fallback if no tags exist
+                    <span className="text-xs text-gray-600">No tags</span> 
+                )}
             </div>
           </div>
         </div>

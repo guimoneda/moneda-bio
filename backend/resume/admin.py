@@ -3,5 +3,5 @@ from .models import Job
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('title', 'company', 'start_date', 'is_current','tags')
-    search_fields = ('title', 'company','tags')
+    list_display = ('title', 'company', 'start_date', 'technologies', 'is_current')
+    search_fields = ('title', 'company','technologies')
