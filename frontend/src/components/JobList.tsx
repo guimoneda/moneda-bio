@@ -67,10 +67,10 @@ const JobList: React.FC = () => {
             {/* If your API has technologies, loop them here. Otherwise, hardcode a placeholder */}
             <div className="flex flex-wrap gap-2 mt-auto">
                <span className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md">
-                 React
+                 {job.tags ? job.tags[0] : 'React'}
                </span>
                <span className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md">
-                 Django
+                 {job.tags ? job.tags[1] : 'Django'}
                </span>
             </div>
           </div>
