@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
@@ -9,23 +10,23 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
-              Guilherme Moneda
+              Guilherme's Bio
             </span>
           </div>
 
           {/* Links */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <a href="/" className="px-3 py-2 rounded-md text-sm font-medium text-white bg-gray-900 hover:bg-gray-700 transition">
+              <Link to="/" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                 Home
-              </a>
-              <a href="/jobs" className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition">
+              </Link>
+              <Link to="/jobs" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                 Jobs
-              </a>
+              </Link>
               {/* External link to your Admin Panel */}
-              <a href="/admin" className="px-3 py-2 rounded-md text-sm font-medium text-indigo-400 hover:text-indigo-300 hover:bg-gray-900 border border-indigo-500 transition">
+              <Link to="/admin" className="px-3 py-2 rounded-md text-sm font-medium text-indigo-400 hover:text-indigo-300 hover:bg-gray-900 border border-indigo-500 transition">
                 Admin Login
-              </a>
+              </Link>
             </div>
           </div>
           
