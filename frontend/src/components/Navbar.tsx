@@ -24,9 +24,9 @@ const Navbar = () => {
                 Jobs
               </Link>
               {/* External link to your Admin Panel */}
-              <Link to="/admin" className="px-3 py-2 rounded-md text-sm font-medium text-indigo-400 hover:text-indigo-300 hover:bg-gray-900 border border-indigo-500 transition">
+              <a href="/admin" className="px-3 py-2 rounded-md text-sm font-medium text-indigo-400 hover:text-indigo-300 hover:bg-gray-900 border border-indigo-500 transition">
                 Admin Login
-              </Link>
+              </a>
             </div>
           </div>
           
