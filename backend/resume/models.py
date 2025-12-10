@@ -7,6 +7,7 @@ class Job(models.Model):
     end_date = models.DateField(null=True, blank=True) # Null means "Present"
     description = models.TextField()
     is_current = models.BooleanField(default=False)
+    tags = models.CharField(max_length=20)
     
     # This makes it sort automatically by newest first
     class Meta:
