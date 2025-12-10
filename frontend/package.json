@@ -17,7 +17,7 @@
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
     "react-router-dom": "^6.28.0",
-    "framer-motion": "^10.16.4"
+    "motion": "^12.0.0-alpha.2"
   },
   "scripts": {
     "start": "react-scripts start",
