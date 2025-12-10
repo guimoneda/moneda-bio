@@ -75,7 +75,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                     job.technologies.slice(0, 3).map((technologies, index) => (
                     <span 
                         key={index} 
-                        className="px-2 py-1 text-xs font-medium bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 rounded-md"
+                        className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md"
                     >
                         {technologies}
                     </span>
