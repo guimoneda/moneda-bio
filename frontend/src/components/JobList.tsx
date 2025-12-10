@@ -8,6 +8,7 @@ interface Job {
   company: string;
   description: string;
   start_date?: string;
+  tags?: string;
   // technologies?: string[]; // If your API returns a list of tags
 }
 
@@ -69,7 +70,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
             {/* If your API has technologies, loop them here. Otherwise, hardcode a placeholder */}
             <div className="flex flex-wrap gap-2 mt-auto">
                <span className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md">
-                 {job.tags ? job.tags[0] : 'Placeholder Tech'}
+                 {job.tags}
                </span>
             </div>
           </div>
