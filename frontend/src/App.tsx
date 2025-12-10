@@ -15,7 +15,6 @@ function App() {
           Latest Projects
         </h2>
         <JobList />
-        </p>
       </div>
     </div>
   );
