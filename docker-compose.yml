@@ -34,7 +34,7 @@ services:
 
   # 3. THE FRONTEND (React/Node)
   frontend:
-    image: node:18-alpine
+    image: node:20-alpine
     container_name: bio-frontend
     working_dir: /app
     environment:
