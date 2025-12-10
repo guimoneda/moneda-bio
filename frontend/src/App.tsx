@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import JobList from './components/JobList';
 
 function App() {
   return (
@@ -13,8 +14,7 @@ function App() {
         <h2 className="text-3xl font-bold text-white mb-6 border-l-4 border-indigo-500 pl-4">
           Latest Projects
         </h2>
-        <p className="text-gray-400">
-          (The Job List component will be loaded here...)
+        <JobList />
         </p>
       </div>
     </div>
