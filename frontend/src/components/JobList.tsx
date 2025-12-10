@@ -19,7 +19,7 @@ const JobList: React.FC = () => {
   useEffect(() => {
     // 2. Fetch from your local Django Backend
     // Note: If running in Docker locally, your browser still sees 'localhost:8000'
-    fetch('http://localhost:8000/api/jobs/') 
+    fetch('/api/jobs/') 
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
