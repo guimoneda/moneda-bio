@@ -5,8 +5,8 @@ import Hero from './components/Hero';
 function App() {
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* <Navbar /> */}
-      {/* <Hero /> */}
+      <Navbar />
+      <Hero />
       
       {/* Placeholder for the Job List we will build next */}
       <div className="max-w-7xl mx-auto px-4 py-12">
