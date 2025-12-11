@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db.models.fields.files import ImageFieldFile
 
 class Job(models.Model):
     company = models.CharField(max_length=200)
@@ -8,6 +9,7 @@ class Job(models.Model):
     end_date = models.DateField(null=True, blank=True) # Null means "Present"
     description = models.TextField()
     is_current = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='job_images/', null=True, blank=True)
     technologies = ArrayField(
         models.CharField(max_length=30, blank=True),
         blank=True,

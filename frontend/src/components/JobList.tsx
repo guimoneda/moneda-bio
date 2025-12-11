@@ -7,7 +7,7 @@ interface Job {
   title: string;
   company: string;
   description: string;
-  technologies: string[]; // Renamed from tags
+  technologies: string[]; // technologies used in the job/project
   image?: string;         // Optional: URL for the background image
 }
 
@@ -131,7 +131,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
 
                         {/* Full List of Technologies (Your styling, but slightly larger for modal) */}
                         <div className="mt-8 pt-6 border-t border-gray-700">
-                           <h4 className="text-gray-400 text-sm uppercase tracking-wider mb-3">Technologies Used</h4>
+                           <h4 className="text-gray-400 text-sm uppercase tracking-wider mb-3">Technologies</h4>
                            <div className="flex flex-wrap gap-2">
                              {job.technologies && job.technologies.map((tech, index) => (
                                <span 
