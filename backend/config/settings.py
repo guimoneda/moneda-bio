@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # We use a default just in case, but in production, it MUST use the env var
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-DEBUG = True
+DEBUG = False
 # Optional: Add a safety check to crash if the key is missing in production
 if not SECRET_KEY and not DEBUG:
     raise ValueError("No DJANGO_SECRET_KEY set for production")
