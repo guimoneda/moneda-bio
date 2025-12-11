@@ -28,9 +28,6 @@ DEBUG = False
 if not SECRET_KEY and not DEBUG:
     raise ValueError("No DJANGO_SECRET_KEY set for production")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-
-
 ALLOWED_HOSTS = ['bio.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend']
 
 # Trust the secure Cloudflare domain for form submissions
@@ -131,6 +128,12 @@ USE_TZ = True
 STATIC_URL = 'django_static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Base URL to access media files in the browser
+MEDIA_URL = '/media/'
+
+# Where files are physically stored on the NAS container
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Enable WhiteNoise compression and caching
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

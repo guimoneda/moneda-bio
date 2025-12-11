@@ -5,3 +5,4 @@ django-cors-headers
 djangorestframework
 dj-database-url
 whitenoise==6.5.0
+Pillow

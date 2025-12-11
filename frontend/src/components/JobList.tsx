@@ -7,8 +7,9 @@ interface Job {
   title: string;
   company: string;
   description: string;
-  technologies: string[]; // technologies used in the job/project
+  technologies: string[]; // technologies used in the job/projects
   image?: string;         // Optional: URL for the background image
+  image_url?: string;     // Optinal: URL external link
 }
 
 interface JobListProps {
@@ -28,6 +29,18 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
   }, []);
 
   const displayedJobs = limit ? jobs.slice(0, limit) : jobs;
+  const getJobImage = (job: Job) => {
+  if (job.image) {
+    // If it's an uploaded file, we might need to prepend the domain if Django returns a relative path
+    // But usually, relative path "/media/..." works fine if on the same domain
+    return job.image; 
+  }
+  if (job.image_url) {
+    return job.image_url;
+  }
+  // Default fallback
+  return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
+  }
 
   return (
     <div className="relative"> 
@@ -45,7 +58,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
              {/* Background Image Placeholder (Opacity change on hover) */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500"
-              style={{ backgroundImage: `url(${job.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80'})` }} 
+              style={{ backgroundImage: `url(${getJobImage(job)})` }} 
             />
             
             <div className="p-6 relative z-10 flex flex-col flex-grow">
@@ -110,7 +123,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                       {/* Header Image */}
                       <div 
                         className="h-64 bg-cover bg-center relative"
-                        style={{ backgroundImage: `url(${job.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80'})` }}
+                        style={{ backgroundImage: `url(${getJobImage(job)})` }}
                       >
                          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
                       </div>
