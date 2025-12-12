@@ -7,7 +7,7 @@ interface EducationItem {
   degree: string;
   start_date: string;
   end_date: string | null;
-  is_active: boolean; // <--- Added the new field
+  is_active: boolean; 
   description: string;
 }
 
@@ -31,15 +31,16 @@ const EducationList: React.FC = () => {
           transition={{ delay: index * 0.1 }}
           className={`bg-gray-800 rounded-xl p-6 border shadow-lg transition-colors ${
             school.is_active 
-              ? 'border-green-500/30 hover:border-green-500/50' // Subtle green border if active
+              ? 'border-green-500/30 hover:border-green-500/50' 
               : 'border-gray-700 hover:border-indigo-500'
           }`}
         >
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
+          {/* FIX 1: Changed 'md:items-start' to 'md:items-center' to center vertically */}
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
+            
             <div>
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 {school.degree}
-                {/* Optional: Add a small badge if active */}
                 {school.is_active && (
                   <span className="px-2 py-0.5 text-xs font-bold bg-green-900/50 text-green-400 rounded-full border border-green-700/50">
                     CURRENT
@@ -49,13 +50,25 @@ const EducationList: React.FC = () => {
               <p className="text-indigo-400 font-medium text-lg">{school.institution}</p>
             </div>
             
-            <div className="text-gray-500 text-sm mt-2 md:mt-0 font-mono flex items-center">
-              <span>{school.start_date}</span>
-              <span className="mx-2"> &rarr; </span>
-              <span className={school.is_active ? "text-green-400 font-bold" : ""}>
+            {/* FIX 2: Switched from 'flex' to 'grid' to lock column widths */}
+            {/* 'auto' for start date | '24px' for arrow | '90px' for end date (reserved space) */}
+            <div className="mt-2 md:mt-0 text-gray-500 text-sm font-mono grid grid-cols-[auto_24px_90px] gap-1 items-center">
+              
+              <span className="text-right">
+                {school.start_date}
+              </span>
+              
+              <span className="text-center">
+                &rarr;
+              </span>
+              
+              <span className={`text-left ${school.is_active ? "text-green-400 font-bold" : ""}`}>
+                {/* Even if empty, the 90px column keeps the spacing rigid */}
                 {school.is_active ? '' : school.end_date}
               </span>
+              
             </div>
+
           </div>
           
           {school.description && (
