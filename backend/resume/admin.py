@@ -1,12 +1,15 @@
 from django.contrib import admin
 from .models import Job, Education
 
+# 1. Configuration for JOBS
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('title', 'company', 'start_date', 'image', 'technologies', 'is_current')
-    search_fields = ('title', 'company','technologies')
+    # Ensure all parentheses are closed properly here
+    list_display = ('title', 'company', 'start_date', 'image', 'technologies')
+    search_fields = ('title', 'company', 'technologies')
 
-@admin.site.register(Education)
+# 2. Configuration for EDUCATION
+@admin.register(Education)
 class EducationAdmin(admin.ModelAdmin):
-    list_display = ('degree', 'institution', 'start_date', 'end_date', 'is_active')
+    list_display = ('degree', 'institution', 'start_date', 'end_date')
     search_fields = ('degree', 'institution')
