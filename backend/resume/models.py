@@ -16,9 +16,20 @@ class Job(models.Model):
         default=list
     )
     
-    # This makes it sort automatically by newest first
+class Education(models.Model):
+    institution = models.CharField(max_length=200) # e.g., "Harvard University"
+    degree = models.CharField(max_length=200)      # e.g., "B.Sc. Computer Science"
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True) # Blank = "Present"
+    description = models.TextField(blank=True)
+    
+     # This makes it sort automatically by newest first
     class Meta:
         ordering = ['-start_date']
 
     def __str__(self):
         return f"{self.title} at {self.company}"
+
+    
+    def __str__(self):
+        return f"{self.degree} at {self.institution}"
