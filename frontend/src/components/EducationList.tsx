@@ -51,9 +51,9 @@ const EducationList: React.FC = () => {
                 </div>
             
                 <div className="grid grid-cols-[auto_20px_auto] gap-1 text-sm text-gray-500 font-mono">
-                  <span className="text-right">{school.startDate}</span>
+                  <span className="text-right">{school.start_date}</span>
                   <span className="text-center">&rarr;</span>
-                  <span className="text-left w-[80px]">{school.endDate}</span> 
+                  <span className="text-left w-[80px]">{school.end_date}</span> 
                   {/* w-[80px] ensures 'Present' takes up same space as a date */}
                 </div>
             </div>
