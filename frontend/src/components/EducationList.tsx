@@ -66,10 +66,10 @@ const EducationList: React.FC = () => {
                 </span>
                 
                 <span className="text-center text-gray-600">
-                  —
+                   &diams; 
                 </span> 
                 
-                <span className={`text-left ${school.is_active ? "text-green-400 font-bold" : ""}`}>
+                <span className={`text-left ${school.is_active ? "text-gray-600 font-bold" : ""}`}>
                    {school.is_active ? "Present" : school.end_date}
                 </span>
 
