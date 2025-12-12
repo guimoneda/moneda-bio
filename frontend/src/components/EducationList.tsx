@@ -49,31 +49,28 @@ const EducationList: React.FC = () => {
               </h3>
             </div>
             
-            {/* ROW 2: Subtitle Row (Institution LEFT | Date Grid RIGHT) */}
+            {/* ROW 2: Subtitle Row */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center">
               
-              {/* Institution Name */}
               <p className="text-indigo-400 font-medium text-lg">
                 {school.institution}
               </p>
               
-              {/* Date Grid - RIGID STRUCTURE */}
-              {/* grid-cols-[85px_20px_85px] forces exact spacing on every card */}
-              <div className="mt-2 md:mt-0 text-gray-500 text-sm font-mono grid grid-cols-[85px_20px_85px] items-center">
-                
-                <span className="text-right">
-                  {school.start_date}
-                </span>
-                
-                <span className="text-center text-gray-600">
-                   &diams; 
-                </span> 
-                
-                <span className={`text-left ${school.is_active ? "text-gray-600 font-bold" : ""}`}>
-                   {school.is_active ? "Present" : school.end_date}
-                </span>
+              {/* DATE GRID - Only rendered if course is NOT active */}
+              {!school.is_active && (
+                <div className="mt-2 md:mt-0 text-gray-500 text-sm font-mono grid grid-cols-[85px_20px_85px] items-center">
+                  <span className="text-right">
+                    {school.start_date}
+                  </span>
+                  <span className="text-center text-gray-600">
+                    &ndash; 
+                  </span> 
+                  <span className="text-left">
+                     {school.end_date}
+                  </span>
+                </div>
+              )}
 
-              </div>
             </div>
 
           </div>
