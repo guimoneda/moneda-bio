@@ -37,7 +37,7 @@ jobs:
           # 2. Create the .env file with ALL secrets (Tunnel + DB)
           # 3. Pull code and restart
           
-          ssh nas "cd /volume1/docker/moneda-bio && \
+          ssh nas "cd /volume2/docker/moneda-bio && \
           printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
           git fetch origin main && \
           git reset --hard origin/main && \
