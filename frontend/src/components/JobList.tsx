@@ -20,13 +20,19 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  useEffect(() => {
-    // Relative path fetch
-    fetch('/api/jobs/')
-      .then((res) => res.json())
-      .then((data) => setJobs(data))
-      .catch((err) => console.error(err));
-  }, []);
+useEffect(() => {
+  // Relative path fetch
+  fetch('/api/jobs/')
+    .then((res) => res.json())
+    .then((data) => {
+      // Sort logic: Subtract 'a' from 'b' to get descending order (Newest first)
+      const sortedJobs = data.sort((a, b) => 
+        new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+      );
+      setJobs(sortedJobs);
+    })
+    .catch((err) => console.error(err));
+}, []);
 
   const getJobImage = (job: Job) => {
   if (job.image) {
