@@ -35,10 +35,10 @@ const EducationList: React.FC = () => {
               : 'border-gray-700 hover:border-indigo-500'
           }`}
         >
-          {/* FIX 1: Changed 'md:items-start' to 'md:items-center' to center vertically */}
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
+          <div className="flex flex-col mb-4">
             
-            <div>
+            {/* ROW 1: Degree & Badge */}
+            <div className="flex justify-between items-start">
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 {school.degree}
                 {school.is_active && (
@@ -47,32 +47,27 @@ const EducationList: React.FC = () => {
                   </span>
                 )}
               </h3>
-              <p className="text-indigo-400 font-medium text-lg">{school.institution}</p>
             </div>
             
-            {/* FIX 2: Switched from 'flex' to 'grid' to lock column widths */}
-            {/* 'auto' for start date | '24px' for arrow | '90px' for end date (reserved space) */}
-            <div className="mt-2 md:mt-0 text-gray-500 text-sm font-mono grid grid-cols-[auto_24px_90px] gap-1 items-center">
+            {/* ROW 2: Subtitle Row (Institution LEFT | Date RIGHT) */}
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mt-2 gap-2">
+              <p className="text-indigo-400 font-medium text-lg">
+                {school.institution}
+              </p>
               
-              <span className="text-right">
-                {school.start_date}
-              </span>
-              
-              <span className="text-center">
-                &rarr;
-              </span>
-              
-              <span className={`text-left ${school.is_active ? "text-green-400 font-bold" : ""}`}>
-                {/* Even if empty, the 90px column keeps the spacing rigid */}
-                {school.is_active ? '' : school.end_date}
-              </span>
-              
+              <div className="text-gray-500 text-sm font-mono whitespace-nowrap">
+                <span>{school.start_date}</span>
+                <span className="mx-2 text-gray-600">—</span> 
+                <span className={school.is_active ? "text-green-400 font-bold" : ""}>
+                   {school.is_active ? "Present" : school.end_date}
+                </span>
+              </div>
             </div>
 
           </div>
           
           {school.description && (
-            <p className="text-gray-400 mt-4 leading-relaxed">
+            <p className="text-gray-400 mt-2 leading-relaxed border-t border-gray-700/50 pt-4">
               {school.description}
             </p>
           )}
