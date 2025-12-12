@@ -51,7 +51,7 @@ const EducationList: React.FC = () => {
             
             <div className="text-gray-500 text-sm mt-2 md:mt-0 font-mono flex items-center">
               <span>{school.start_date}</span>
-              <span className="mx-2">—</span>
+              <span className="mx-2"> &mdash; </span>
               <span className={school.is_active ? "text-green-400 font-bold" : ""}>
                 {school.is_active ? 'Present' : school.end_date}
               </span>
