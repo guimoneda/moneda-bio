@@ -26,7 +26,7 @@ useEffect(() => {
     .then((res) => res.json())
     .then((data) => {
       // Sort logic: Subtract 'a' from 'b' to get descending order (Newest first)
-      const sortedJobs = data.sort((a, b) => 
+      const sortedJobs = data.sort((a: any, b: any) => 
         new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
       );
       setJobs(sortedJobs);
