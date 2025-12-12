@@ -22,6 +22,8 @@ class Education(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True) # Blank = "Present"
     description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=False)
+
     
      # This makes it sort automatically by newest first
     class Meta:
