@@ -36,26 +36,25 @@ const EducationList: React.FC = () => {
           }`}
         >
           <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
-            <div className="grid grid-cols-[1fr_auto] gap-4 items-center ...">
-                <div>
-                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                    {school.degree}
-                    {/* Optional: Add a small badge if active */}
-                    {school.is_active && (
-                      <span className="px-2 py-0.5 text-xs font-bold bg-green-900/50 text-green-400 rounded-full border border-green-700/50">
-                        CURRENT
-                      </span>
-                    )}
-                  </h3>
-                  <p className="text-indigo-400 font-medium text-lg">{school.institution}</p>
-                </div>
+            <div>
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                {school.degree}
+                {/* Optional: Add a small badge if active */}
+                {school.is_active && (
+                  <span className="px-2 py-0.5 text-xs font-bold bg-green-900/50 text-green-400 rounded-full border border-green-700/50">
+                    CURRENT
+                  </span>
+                )}
+              </h3>
+              <p className="text-indigo-400 font-medium text-lg">{school.institution}</p>
+            </div>
             
-                <div className="grid grid-cols-[auto_20px_auto] gap-1 text-sm text-gray-500 font-mono">
-                  <span className="text-right">{school.start_date}</span>
-                  <span className="text-center">&rarr;</span>
-                  <span className="text-left w-[80px]">{school.end_date}</span> 
-                  {/* w-[80px] ensures 'Present' takes up same space as a date */}
-                </div>
+            <div className="text-gray-500 text-sm mt-2 md:mt-0 font-mono flex items-center">
+              <span>{school.start_date}</span>
+              <span className="mx-2"> &rarr; </span>
+              <span className={school.is_active ? "text-green-400 font-bold" : ""}>
+                {school.is_active ? 'Present' : school.end_date}
+              </span>
             </div>
           </div>
           
