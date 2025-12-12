@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react'; 
 
-// 1. Updated Interface to use 'technologies'
+// 1. Updated Interface
 interface Job {
   id: number;
   title: string;
   company: string;
   description: string;
-  technologies: string[]; // technologies used in the job/projects
-  image?: string;         // Optional: URL for the background image
-  image_url?: string;     // Optional: URL external link
+  technologies: string[];
+  start_date: string;
+  duration?: string;      // <--- The new virtual field from Django
+  image?: string;         
+  image_url?: string;     
 }
 
 interface JobListProps {
@@ -20,32 +22,25 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-useEffect(() => {
-  // Relative path fetch
-  fetch('/api/jobs/')
-    .then((res) => res.json())
-    .then((data) => {
-      // Sort logic: Subtract 'a' from 'b' to get descending order (Newest first)
-      const sortedJobs = data.sort((a: any, b: any) => 
-        new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
-      );
-      setJobs(sortedJobs);
-    })
-    .catch((err) => console.error(err));
-}, []);
+  useEffect(() => {
+    fetch('/api/jobs/')
+      .then((res) => res.json())
+      .then((data: Job[]) => { // Explicit typing
+        // Sort: Newest start_date first
+        const sortedJobs = data.sort((a, b) => 
+          new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+        );
+        setJobs(sortedJobs);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   const getJobImage = (job: Job) => {
-  if (job.image) {
-    // If it's an uploaded file, we might need to prepend the domain if Django returns a relative path
-    // But usually, relative path "/media/..." works fine if on the same domain
-    return job.image; 
+    if (job.image) return job.image; 
+    if (job.image_url) return job.image_url;
+    return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
   }
-  if (job.image_url) {
-    return job.image_url;
-  }
-  // Default fallback
-  return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
-  }
+
   const displayedJobs = limit ? jobs.slice(0, limit) : jobs;
 
   return (
@@ -61,7 +56,7 @@ useEffect(() => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-             {/* Background Image Placeholder (Opacity change on hover) */}
+             {/* Background Image Placeholder */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500"
               style={{ backgroundImage: `url(${getJobImage(job)})` }} 
@@ -69,13 +64,25 @@ useEffect(() => {
             
             <div className="p-6 relative z-10 flex flex-col flex-grow">
               <motion.h3 className="text-xl font-bold text-white">{job.title}</motion.h3>
-              <motion.p className="text-indigo-400 text-sm font-medium mb-2">{job.company}</motion.p>
+              
+              {/* --- UPDATED SECTION: Company + Duration --- */}
+              <div className="flex justify-between items-start mb-2 mt-1">
+                <motion.p className="text-indigo-400 text-sm font-medium">
+                  {job.company}
+                </motion.p>
+                
+                {/* Render Duration Badge if it exists */}
+                {job.duration && (
+                  <span className="text-xs font-mono text-gray-400 bg-gray-900/60 px-2 py-0.5 rounded border border-gray-700/50 whitespace-nowrap ml-2">
+                    {job.duration}
+                  </span>
+                )}
+              </div>
               
               <p className="text-gray-400 text-sm line-clamp-3 mb-4">
                 {job.description}
               </p>
 
-              {/* YOUR UPDATED TECHNOLOGIES SECTION */}
               <div className="flex flex-wrap gap-2 mt-auto">
                 {job.technologies && job.technologies.slice(0, 3).map((tech, index) => (
                    <span 
@@ -120,23 +127,35 @@ useEffect(() => {
                       <button 
                          onClick={() => setSelectedId(null)}
                          className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
-                       >
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                         </svg>
-                       </button>
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
 
                       {/* Header Image */}
                       <div 
                         className="h-64 bg-cover bg-center relative"
                         style={{ backgroundImage: `url(${getJobImage(job)})` }}
                       >
-                         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
                       </div>
 
                       <div className="p-8">
                         <motion.h3 className="text-3xl font-bold text-white mb-2">{job.title}</motion.h3>
-                        <motion.p className="text-indigo-400 text-lg font-medium mb-6">{job.company}</motion.p>
+                        
+                        {/* --- UPDATED MODAL SECTION: Company + Duration --- */}
+                        <div className="flex items-center gap-4 mb-6">
+                            <motion.p className="text-indigo-400 text-lg font-medium">
+                                {job.company}
+                            </motion.p>
+                            
+                            {job.duration && (
+                                <span className="text-sm font-mono text-gray-300 bg-gray-800 px-3 py-1 rounded-full border border-gray-600">
+                                    {job.duration}
+                                </span>
+                            )}
+                        </div>
                         
                         <motion.div 
                           initial={{ opacity: 0 }} 
@@ -145,10 +164,8 @@ useEffect(() => {
                           className="text-gray-300 space-y-4 leading-relaxed text-lg"
                         >
                           <p>{job.description}</p>
-                          {/* This is where you'd put extra 'longDescription' if you add it to DB later */}
                         </motion.div>
 
-                        {/* Full List of Technologies (Your styling, but slightly larger for modal) */}
                         <div className="mt-8 pt-6 border-t border-gray-700">
                            <h4 className="text-gray-400 text-sm uppercase tracking-wider mb-3">Technologies</h4>
                            <div className="flex flex-wrap gap-2">
