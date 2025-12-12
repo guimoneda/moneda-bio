@@ -7,7 +7,7 @@ interface EducationItem {
   degree: string;
   start_date: string;
   end_date: string | null;
-  is_active: boolean;
+  is_active: boolean; // <--- Added the new field
   description: string;
 }
 
@@ -31,16 +31,15 @@ const EducationList: React.FC = () => {
           transition={{ delay: index * 0.1 }}
           className={`bg-gray-800 rounded-xl p-6 border shadow-lg transition-colors ${
             school.is_active 
-              ? 'border-green-500/30 hover:border-green-500/50' 
+              ? 'border-green-500/30 hover:border-green-500/50' // Subtle green border if active
               : 'border-gray-700 hover:border-indigo-500'
           }`}
         >
           <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
-            
-            {/* Left Side: Degree & School */}
             <div>
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 {school.degree}
+                {/* Optional: Add a small badge if active */}
                 {school.is_active && (
                   <span className="px-2 py-0.5 text-xs font-bold bg-green-900/50 text-green-400 rounded-full border border-green-700/50">
                     CURRENT
@@ -50,26 +49,13 @@ const EducationList: React.FC = () => {
               <p className="text-indigo-400 font-medium text-lg">{school.institution}</p>
             </div>
             
-            {/* Right Side: Conditional Date Logic */}
-            <div className="mt-2 md:mt-0">
-              {school.is_active ? (
-                // OPTION 1: Active Items -> Show "Since [Date]"
-                // This removes redundancy with the "CURRENT" badge
-                <div className="text-sm text-green-400/80 font-mono font-bold text-right">
-                  Since {school.start_date}
-                </div>
-              ) : (
-                // OPTION 2: Inactive Items -> Show Grid Layout
-                // This aligns the arrows and dates perfectly
-                <div className="grid grid-cols-[auto_20px_auto] gap-1 text-sm text-gray-500 font-mono">
-                  <span className="text-right">{school.start_date}</span>
-                  <span className="text-center">&rarr;</span>
-                  {/* w-[85px] reserves space so dates line up even if lengths vary slightly */}
-                  <span className="text-left w-[85px]">{school.end_date}</span> 
-                </div>
-              )}
+            <div className="text-gray-500 text-sm mt-2 md:mt-0 font-mono flex items-center">
+              <span>{school.start_date}</span>
+              <span className="mx-2"> &rarr; </span>
+              <span className={school.is_active ? "text-green-400 font-bold" : ""}>
+                {school.is_active ? '' : school.end_date}
+              </span>
             </div>
-
           </div>
           
           {school.description && (
