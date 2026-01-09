@@ -50,7 +50,7 @@ function App() {
             <SocialLinks />
             
             <p className="text-gray-600 mt-8 text-sm">
-              © 2026 Moneda. All rights reserved.
+              &copy; 2026 Moneda. All rights reserved.
             </p>
           </div>
         </footer>
