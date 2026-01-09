@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import JobList from './components/JobList';
 import JobsPage from './pages/JobsPage';
+import SocialLinks from './components/SocialLinks';
 
 //Create a "Home" component
 const Home = () => (
@@ -33,5 +34,13 @@ function App() {
     </Router>
   );
 }
+
+<footer className="bg-gray-900 py-12 border-t border-gray-800">
+  <div className="container mx-auto px-4 flex flex-col items-center">
+    <h2 className="text-2xl font-bold text-white mb-6">Let's Connect</h2>
+    <SocialLinks />
+    <p className="text-gray-600 mt-8 text-sm">© 2026 Moneda. All rights reserved.</p>
+  </div>
+</footer>
 
 export default App;

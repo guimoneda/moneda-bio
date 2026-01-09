@@ -1,4 +1,5 @@
 import React from 'react';
+import SocialLinks from './SocialLinks';
 
 const Hero = () => {
   return (
@@ -9,7 +10,7 @@ const Hero = () => {
           <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
             <div className="sm:text-center lg:text-left">
               <h1 className="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl">
-                <span className="block xl:inline">Hi, I'm Guilherme</span>{' '}
+                <span className="block xl:inline">Hi, I'm Moneda</span>{' '}
                 <span className="block text-indigo-500 xl:inline">Full Stack Developer</span>
               </h1>
               <p className="mt-3 text-base text-gray-400 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
@@ -46,12 +47,5 @@ const Hero = () => {
   );
 };
 
-<footer className="bg-gray-900 py-12 border-t border-gray-800">
-  <div className="container mx-auto px-4 flex flex-col items-center">
-    <h2 className="text-2xl font-bold text-white mb-6">Let's Connect</h2>
-    <SocialLinks />
-    <p className="text-gray-600 mt-8 text-sm">© 2026 Guilherme. All rights reserved.</p>
-  </div>
-</footer>
 
 export default Hero;
