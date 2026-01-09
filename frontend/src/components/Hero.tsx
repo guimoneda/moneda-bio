@@ -46,4 +46,12 @@ const Hero = () => {
   );
 };
 
+<footer className="bg-gray-900 py-12 border-t border-gray-800">
+  <div className="container mx-auto px-4 flex flex-col items-center">
+    <h2 className="text-2xl font-bold text-white mb-6">Let's Connect</h2>
+    <SocialLinks />
+    <p className="text-gray-600 mt-8 text-sm">© 2026 Guilherme. All rights reserved.</p>
+  </div>
+</footer>
+
 export default Hero;
