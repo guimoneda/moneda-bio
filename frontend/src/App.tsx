@@ -42,7 +42,7 @@ function App() {
         {/* 3. Footer: 
            Now placed INSIDE the App component, so it renders!
         */}
-        <footer className="bg-gray-900 py-12 border-t border-gray-800">
+        <footer className="bg-red-600 py-12 border-t border-yellow-400 z-50 relative">
           <div className="container mx-auto px-4 flex flex-col items-center">
             <h2 className="text-2xl font-bold text-white mb-6">Let's Connect</h2>
             
