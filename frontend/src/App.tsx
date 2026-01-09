@@ -6,7 +6,7 @@ import JobList from './components/JobList';
 import JobsPage from './pages/JobsPage';
 import SocialLinks from './components/SocialLinks';
 
-//Create a "Home" component
+// Home Component
 const Home = () => (
   <>
     <Navbar />
@@ -20,27 +20,44 @@ const Home = () => (
   </>
 );
 
-// Main App
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Rule 1: If URL is "/", show Home */}
-        <Route path="/" element={<Home />} />
+      {/* 1. Main Wrapper: 
+         'min-h-screen' makes the app at least as tall as the window.
+         'flex-col' stacks content vertically.
+      */}
+      <div className="flex flex-col min-h-screen bg-gray-900 text-white">
         
-        {/* Rule 2: If URL is "/jobs", show JobsPage */}
-        <Route path="/jobs" element={<JobsPage />} />
-      </Routes>
+        {/* 2. Content Area: 
+           'flex-grow' pushes the footer down if the content is short.
+        */}
+        <div className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/jobs" element={<JobsPage />} />
+          </Routes>
+        </div>
+
+        {/* 3. Footer: 
+           Now placed INSIDE the App component, so it renders!
+        */}
+        <footer className="bg-gray-900 py-12 border-t border-gray-800">
+          <div className="container mx-auto px-4 flex flex-col items-center">
+            <h2 className="text-2xl font-bold text-white mb-6">Let's Connect</h2>
+            
+            {/* Your SocialLinks Component */}
+            <SocialLinks />
+            
+            <p className="text-gray-600 mt-8 text-sm">
+              © 2026 Moneda. All rights reserved.
+            </p>
+          </div>
+        </footer>
+
+      </div>
     </Router>
   );
 }
-
-<footer className="bg-gray-900 py-12 border-t border-gray-800">
-  <div className="container mx-auto px-4 flex flex-col items-center">
-    <h2 className="text-2xl font-bold text-white mb-6">Let's Connect</h2>
-    <SocialLinks />
-    <p className="text-gray-600 mt-8 text-sm">© 2026 Moneda. All rights reserved.</p>
-  </div>
-</footer>
 
 export default App;
