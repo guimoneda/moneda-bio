@@ -80,7 +80,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
               </div>
               
               <p className="text-gray-400 text-sm line-clamp-3 mb-4">
-                {job.description}
+                dangerouslySetInnerHTML={{ __html: job.description }} 
               </p>
 
               <div className="flex flex-wrap gap-2 mt-auto">
