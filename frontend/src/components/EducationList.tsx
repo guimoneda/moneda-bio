@@ -76,9 +76,10 @@ const EducationList: React.FC = () => {
           </div>
           
           {school.description && (
-            <p className="text-gray-400 mt-4 leading-relaxed border-t border-gray-700/50 pt-4">
-              {school.description}
-            </p>
+            <div 
+              className="text-gray-400 mt-4 leading-relaxed border-t border-gray-700/50 pt-4 [&_p]:mb-4 [&_b]:font-bold [&_strong]:font-bold [&_strong]:text-white"
+              dangerouslySetInnerHTML={{ __html: school.description }}
+            />
           )}
         </motion.div>
       ))}

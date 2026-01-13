@@ -7,7 +7,7 @@ class Job(models.Model):
     title = models.CharField(max_length=200)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True) # Null means "Present"
-    description = models.RichTextField()
+    description = RichTextField()
     is_current = models.BooleanField(default=False)
     image = models.ImageField(upload_to='jobs/', blank=True, null=True)
     image_url = models.URLField(blank=True, null=True)
@@ -22,7 +22,7 @@ class Education(models.Model):
     degree = models.CharField(max_length=200)      # e.g., "B.Sc. Computer Science"
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True) # Blank = "Present"
-    description = models.TextField(blank=True)
+    description = RichTextField(blank=True)
     is_active = models.BooleanField(default=False)
 
     
