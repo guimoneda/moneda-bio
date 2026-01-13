@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from ckeditor.fields import RichTextField
 
 class Job(models.Model):
     company = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True) # Null means "Present"
-    description = models.TextField()
+    description = models.RichTextField()
     is_current = models.BooleanField(default=False)
     image = models.ImageField(upload_to='jobs/', blank=True, null=True)
     image_url = models.URLField(blank=True, null=True)

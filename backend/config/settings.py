@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'resume',
     'rest_framework',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,16 @@ CORS_ALLOWED_ORIGINS = [
     "https://bio.guimoneda.com",
     "http://localhost:3000",
 ]
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat', 'Source']
+        ],
+        'width': 'auto',
+    },
+}
