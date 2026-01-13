@@ -161,9 +161,12 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                           initial={{ opacity: 0 }} 
                           animate={{ opacity: 1 }} 
                           transition={{ delay: 0.2 }}
-                          className="text-gray-300 space-y-4 leading-relaxed text-lg"
+                          className="text-gray-300 leading-relaxed text-lg" 
                         >
-                          <p>{job.description}</p>
+                          <div 
+                            className="[&_p]:mb-4 [&_b]:font-bold [&_strong]:font-bold [&_strong]:text-white"
+                            dangerouslySetInnerHTML={{ __html: job.description }} 
+                          />
                         </motion.div>
 
                         <div className="mt-8 pt-6 border-t border-gray-700">
