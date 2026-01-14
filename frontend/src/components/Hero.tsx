@@ -5,7 +5,7 @@ const Hero = () => {
   return (
     <section className="relative w-full min-h-[600px] flex items-center bg-gray-900 overflow-hidden">
       
-      {/* Background Elements (Optional, kept simple for now) */}
+      {/* Background Elements */}
       <div className="absolute inset-0 z-0">
           <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px]" />
           <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px]" />
@@ -33,14 +33,19 @@ const Hero = () => {
             robust automation frameworks using <strong>Python</strong>, <strong>Selenium</strong>, and <strong>Robot Framework</strong>.
           </p>
 
-          <div className="flex flex-wrap gap-4">
-            <button className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-indigo-500/30">
-              View My Resume
-            </button>
-            <button className="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-lg border border-gray-700 transition-all">
-              Contact Me
-            </button>
+          <div className="mt-5 sm:mt-8 sm:flex sm:justify-start">
+            <div className="rounded-md shadow">
+              <a href="/jobs" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
+                View My Work
+              </a>
+            </div>
+            <div className="mt-3 sm:mt-0 sm:ml-3">
+              <a href="mailto:contact@guimoneda.com" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg">
+                Contact Me
+              </a>
+            </div>
           </div>
+
         </motion.div>
 
         {/* Right Image/Graphic */}
@@ -50,7 +55,6 @@ const Hero = () => {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative hidden md:block"
         >
-          {/* You can replace this with your profile pic or a code snippet image */}
           <div className="relative w-full h-[400px] bg-gray-800/50 rounded-2xl border border-gray-700 p-4 shadow-2xl backdrop-blur-sm">
              {/* Decorative Code Snippet UI */}
              <div className="flex gap-2 mb-4">
@@ -58,22 +62,3 @@ const Hero = () => {
                <div className="w-3 h-3 rounded-full bg-yellow-500"/>
                <div className="w-3 h-3 rounded-full bg-green-500"/>
              </div>
-             <div className="space-y-2 font-mono text-sm">
-               <div className="text-gray-400"># Automation Framework Setup</div>
-               <div className="text-purple-400">class <span className="text-yellow-300">TestAutomation</span>:</div>
-               <div className="text-gray-300 pl-4">def <span className="text-blue-400">__init__</span>(self):</div>
-               <div className="text-green-400 pl-8">self.tools = ["Selenium", "Appium", "Python"]</div>
-               <div className="text-green-400 pl-8">self.goal = "Zero Defects"</div>
-               <br />
-               <div className="text-gray-300 pl-4">def <span className="text-blue-400">run_test</span>(self):</div>
-               <div className="text-green-400 pl-8">return "Quality Assured"</div>
-             </div>
-          </div>
-        </motion.div>
-
-      </div>
-    </section>
-  );
-};
-
-export default Hero;
