@@ -25,6 +25,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
     fetch('/api/jobs/')
       .then((res) => res.json())
       .then((data: Job[]) => {
+        // Sort: Newest start_date first
         const sortedJobs = data.sort((a, b) => 
           new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
         );
@@ -36,6 +37,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
   const getJobImage = (job: Job) => {
     if (job.image) return job.image; 
     if (job.image_url) return job.image_url;
+    // Fallback image if none provided
     return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
   }
 
@@ -43,28 +45,29 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
 
   return (
     <div className="relative"> 
-      {/* --- THE GRID VIEW --- */}
+      
+      {/* --- THE MINIMALIST GRID VIEW --- */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {displayedJobs.map((job) => (
           <motion.div
             layoutId={`card-${job.id}`} 
             key={job.id}
             onClick={() => setSelectedId(job.id)}
-            // CHANGE 1: 'h-[280px]' for a compact, real-card feel.
+            // COMPACT CARD: Fixed height 280px, tighter borders, subtle hover lift
             className="bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-700/50 cursor-pointer relative group flex flex-col h-[280px] hover:border-indigo-500/50 transition-colors"
-            whileHover={{ y: -4 }} // Subtle lift instead of scale
+            whileHover={{ y: -4 }} 
             whileTap={{ scale: 0.98 }}
           >
-              {/* Background Image: Darker and more subtle now */}
+             {/* Background Image: Very subtle opacity */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-[0.07] group-hover:opacity-20 transition-opacity duration-500 grayscale"
               style={{ backgroundImage: `url(${getJobImage(job)})` }} 
             />
             
-            {/* CHANGE 2: Reduced padding to 'p-5' */}
+            {/* COMPACT PADDING: p-5 */}
             <div className="p-5 relative z-10 flex flex-col flex-grow">
               
-              {/* Header: Compact Title & Date */}
+              {/* Header: Title Left, Date Right */}
               <div className="flex justify-between items-start mb-1">
                 <motion.h3 className="text-lg font-bold text-white leading-tight pr-4">
                   {job.title}
@@ -76,30 +79,29 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                 )}
               </div>
 
-              {/* Company Name */}
+              {/* Company: Small Uppercase Label */}
               <motion.p className="text-indigo-400 text-xs font-semibold mb-3 uppercase tracking-wide">
                 {job.company}
               </motion.p>
               
-              {/* CHANGE 3: Description - Tighter, smaller, max 3 lines */}
+              {/* Description: Max 3 lines */}
               <div 
                 className="text-gray-400 text-sm leading-snug line-clamp-3 mb-4 [&_p]:mb-0 [&_p]:inline"
                 dangerouslySetInnerHTML={{ __html: job.description }}
               />
 
-              {/* Footer: Tags stuck to bottom, very small */}
+              {/* Footer: Tech Tags (Tiny) */}
               <div className="flex flex-wrap gap-1.5 mt-auto">
                 {job.technologies && job.technologies.slice(0, 3).map((tech, index) => (
-                    <span 
-                      key={index} 
-                      className="px-2 py-0.5 text-[10px] font-medium bg-gray-900/80 text-gray-400 border border-gray-700 rounded"
-                    >
-                      {tech}
-                    </span>
+                   <span 
+                     key={index} 
+                     className="px-2 py-0.5 text-[10px] font-medium bg-gray-900/80 text-gray-400 border border-gray-700 rounded"
+                   >
+                     {tech}
+                   </span>
                 ))}
-                {/* Optional: Show +X more if there are many tags */}
                 {job.technologies && job.technologies.length > 3 && (
-                  <span className="px-2 py-0.5 text-[10px] text-gray-600">+more</span>
+                    <span className="px-2 py-0.5 text-[10px] text-gray-600">+more</span>
                 )}
               </div>
             </div>
@@ -107,10 +109,11 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
         ))}
       </div>
 
-      {/* --- THE EXPANDED OVERLAY (Unchanged) --- */}
+      {/* --- THE EXPANDED OVERLAY (MODAL) --- */}
       <AnimatePresence>
         {selectedId && (
           <>
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -119,6 +122,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
               className="fixed inset-0 bg-black/80 z-40 backdrop-blur-sm"
             />
 
+            {/* Modal Container */}
             <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
               <motion.div
                 layoutId={`card-${selectedId}`} 
@@ -130,6 +134,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                   
                   return (
                     <div className="relative">
+                      {/* Close Button */}
                       <button 
                           onClick={() => setSelectedId(null)}
                           className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
@@ -139,6 +144,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                           </svg>
                         </button>
 
+                      {/* Modal Header Image */}
                       <div 
                         className="h-64 bg-cover bg-center relative"
                         style={{ backgroundImage: `url(${getJobImage(job)})` }}
@@ -146,6 +152,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                           <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
                       </div>
 
+                      {/* Modal Content */}
                       <div className="p-8">
                         <motion.h3 className="text-3xl font-bold text-white mb-2">{job.title}</motion.h3>
                         
