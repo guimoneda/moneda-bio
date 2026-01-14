@@ -15,7 +15,7 @@ const Home = () => (
       <h2 className="text-3xl font-bold text-white mb-6 border-l-4 border-indigo-500 pl-4">
         Latest Projects
       </h2>
-      <JobList limit={3} />
+      <JobList limit={4} />
     </div>
   </>
 );
