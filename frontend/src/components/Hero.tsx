@@ -33,6 +33,7 @@ const Hero = () => {
             robust automation frameworks using <strong>Python</strong>, <strong>Selenium</strong>, and <strong>Robot Framework</strong>.
           </p>
 
+          {/* YOUR UPDATED BUTTONS */}
           <div className="mt-5 sm:mt-8 sm:flex sm:justify-start">
             <div className="rounded-md shadow">
               <a href="/jobs" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
@@ -62,3 +63,22 @@ const Hero = () => {
                <div className="w-3 h-3 rounded-full bg-yellow-500"/>
                <div className="w-3 h-3 rounded-full bg-green-500"/>
              </div>
+             <div className="space-y-2 font-mono text-sm">
+               <div className="text-gray-400"># Automation Framework Setup</div>
+               <div className="text-purple-400">class <span className="text-yellow-300">TestAutomation</span>:</div>
+               <div className="text-gray-300 pl-4">def <span className="text-blue-400">__init__</span>(self):</div>
+               <div className="text-green-400 pl-8">self.tools = ["Selenium", "Appium", "Python"]</div>
+               <div className="text-green-400 pl-8">self.goal = "Zero Defects"</div>
+               <br />
+               <div className="text-gray-300 pl-4">def <span className="text-blue-400">run_test</span>(self):</div>
+               <div className="text-green-400 pl-8">return "Quality Assured"</div>
+             </div>
+          </div>
+        </motion.div>
+
+      </div>
+    </section>
+  );
+};
+
+export default Hero;
