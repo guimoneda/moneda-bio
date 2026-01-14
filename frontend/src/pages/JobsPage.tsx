@@ -2,7 +2,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import JobList from '../components/JobList';
 import EducationList from '../components/EducationList';
-import Certifications from '../components/CertificationList';
+import CertificationList from '../components/CertificationList';
 
 const JobsPage = () => {
   return (
