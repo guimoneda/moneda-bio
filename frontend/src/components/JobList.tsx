@@ -44,54 +44,63 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
   return (
     <div className="relative"> 
       {/* --- THE GRID VIEW --- */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {displayedJobs.map((job) => (
           <motion.div
             layoutId={`card-${job.id}`} 
             key={job.id}
             onClick={() => setSelectedId(job.id)}
-            // CHANGE 1: Replaced 'h-full' with 'h-[420px]' to force fixed height
-            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[420px]"
-            whileHover={{ scale: 1.02 }}
+            // CHANGE 1: 'h-[280px]' for a compact, real-card feel.
+            className="bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-700/50 cursor-pointer relative group flex flex-col h-[280px] hover:border-indigo-500/50 transition-colors"
+            whileHover={{ y: -4 }} // Subtle lift instead of scale
             whileTap={{ scale: 0.98 }}
           >
-             {/* Background Image Placeholder */}
+              {/* Background Image: Darker and more subtle now */}
             <div 
-              className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500"
+              className="absolute inset-0 bg-cover bg-center opacity-[0.07] group-hover:opacity-20 transition-opacity duration-500 grayscale"
               style={{ backgroundImage: `url(${getJobImage(job)})` }} 
             />
             
-            <div className="p-6 relative z-10 flex flex-col flex-grow">
-              <motion.h3 className="text-xl font-bold text-white">{job.title}</motion.h3>
+            {/* CHANGE 2: Reduced padding to 'p-5' */}
+            <div className="p-5 relative z-10 flex flex-col flex-grow">
               
-              <div className="flex justify-between items-start mb-2 mt-1">
-                <motion.p className="text-indigo-400 text-sm font-medium">
-                  {job.company}
-                </motion.p>
-                
+              {/* Header: Compact Title & Date */}
+              <div className="flex justify-between items-start mb-1">
+                <motion.h3 className="text-lg font-bold text-white leading-tight pr-4">
+                  {job.title}
+                </motion.h3>
                 {job.duration && (
-                  <span className="text-xs font-mono text-gray-400 bg-gray-900/60 px-2 py-0.5 rounded border border-gray-700/50 whitespace-nowrap ml-2">
+                  <span className="text-[10px] font-mono text-gray-500 bg-gray-900 border border-gray-800 px-1.5 py-0.5 rounded whitespace-nowrap">
                     {job.duration}
                   </span>
                 )}
               </div>
+
+              {/* Company Name */}
+              <motion.p className="text-indigo-400 text-xs font-semibold mb-3 uppercase tracking-wide">
+                {job.company}
+              </motion.p>
               
-              {/* CHANGE 2: Used 'line-clamp-4' (or 5) to fill the fixed space better */}
+              {/* CHANGE 3: Description - Tighter, smaller, max 3 lines */}
               <div 
-                className="text-gray-400 text-sm line-clamp-4 mb-4 [&_p]:mb-1 [&_p]:inline-block"
+                className="text-gray-400 text-sm leading-snug line-clamp-3 mb-4 [&_p]:mb-0 [&_p]:inline"
                 dangerouslySetInnerHTML={{ __html: job.description }}
               />
 
-              {/* CHANGE 3: 'mt-auto' ensures this section sticks to the bottom of the 420px container */}
-              <div className="flex flex-wrap gap-2 mt-auto">
+              {/* Footer: Tags stuck to bottom, very small */}
+              <div className="flex flex-wrap gap-1.5 mt-auto">
                 {job.technologies && job.technologies.slice(0, 3).map((tech, index) => (
-                   <span 
-                     key={index} 
-                     className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md"
-                   >
-                     {tech}
-                   </span>
+                    <span 
+                      key={index} 
+                      className="px-2 py-0.5 text-[10px] font-medium bg-gray-900/80 text-gray-400 border border-gray-700 rounded"
+                    >
+                      {tech}
+                    </span>
                 ))}
+                {/* Optional: Show +X more if there are many tags */}
+                {job.technologies && job.technologies.length > 3 && (
+                  <span className="px-2 py-0.5 text-[10px] text-gray-600">+more</span>
+                )}
               </div>
             </div>
           </motion.div>
