@@ -1,6 +1,6 @@
 # moneda-bio
 
-Moneda's personal portfolio (Django backend + React frontend) showcasing experience, education and certifications with a small REST API and a modern frontend.
+My personal portfolio (Django backend + React frontend) showcasing experience, education and certifications with a small REST API and a modern frontend.
 
 ---
 
@@ -23,6 +23,17 @@ Moneda's personal portfolio (Django backend + React frontend) showcasing experie
 - Django REST backend exposing resume data (jobs, education, certifications). See API endpoints in [backend/resume/urls.py](backend/resume/urls.py).  
 - React + TypeScript frontend (Create React App) consumes the API and renders interactive lists/modals (see [frontend/src/components/JobList.tsx](frontend/src/components/JobList.tsx), [frontend/src/components/CertificationList.tsx](frontend/src/components/CertificationList.tsx), [frontend/src/components/EducationList.tsx](frontend/src/components/EducationList.tsx)).  
 - Tailwind CSS for styling and Motion library for UI animations.
+
+---
+
+## Infrastructure & Deployment
+This project is hosted on a private NAS server, exposed securely via **Cloudflare Tunnel**.
+
+### CI/CD Pipeline
+Automated deployment is handled via **GitHub Actions**:
+1.  **Push to Main**: Code changes pushed to GitHub trigger the workflow.
+2.  **Secure Tunneling**: The runner installs `cloudflared` and configures SSH to tunnel through Cloudflare to the home NAS.
+3.  **Sync & Restart**: The workflow syncs the latest code to the NAS and rebuilds/restarts the Docker containers.
 
 ---
 
