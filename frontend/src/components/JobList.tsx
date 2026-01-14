@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react'; 
 
-// 1. Updated Interface
 interface Job {
   id: number;
   title: string;
@@ -9,9 +8,9 @@ interface Job {
   description: string;
   technologies: string[];
   start_date: string;
-  duration?: string;      // <--- The new virtual field from Django
-  image?: string;         
-  image_url?: string;     
+  duration?: string;
+  image?: string; 
+  image_url?: string; 
 }
 
 interface JobListProps {
@@ -25,8 +24,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
   useEffect(() => {
     fetch('/api/jobs/')
       .then((res) => res.json())
-      .then((data: Job[]) => { // Explicit typing
-        // Sort: Newest start_date first
+      .then((data: Job[]) => {
         const sortedJobs = data.sort((a, b) => 
           new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
         );
@@ -52,7 +50,8 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
             layoutId={`card-${job.id}`} 
             key={job.id}
             onClick={() => setSelectedId(job.id)}
-            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-full"
+            // CHANGE 1: Replaced 'h-full' with 'h-[420px]' to force fixed height
+            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[420px]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -65,13 +64,11 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
             <div className="p-6 relative z-10 flex flex-col flex-grow">
               <motion.h3 className="text-xl font-bold text-white">{job.title}</motion.h3>
               
-              {/* --- UPDATED SECTION: Company + Duration --- */}
               <div className="flex justify-between items-start mb-2 mt-1">
                 <motion.p className="text-indigo-400 text-sm font-medium">
                   {job.company}
                 </motion.p>
                 
-                {/* Render Duration Badge if it exists */}
                 {job.duration && (
                   <span className="text-xs font-mono text-gray-400 bg-gray-900/60 px-2 py-0.5 rounded border border-gray-700/50 whitespace-nowrap ml-2">
                     {job.duration}
@@ -79,11 +76,13 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                 )}
               </div>
               
+              {/* CHANGE 2: Used 'line-clamp-4' (or 5) to fill the fixed space better */}
               <div 
-                className="text-gray-400 text-sm line-clamp-3 mb-4 [&_p]:mb-1 [&_p]:inline-block"
+                className="text-gray-400 text-sm line-clamp-4 mb-4 [&_p]:mb-1 [&_p]:inline-block"
                 dangerouslySetInnerHTML={{ __html: job.description }}
               />
 
+              {/* CHANGE 3: 'mt-auto' ensures this section sticks to the bottom of the 420px container */}
               <div className="flex flex-wrap gap-2 mt-auto">
                 {job.technologies && job.technologies.slice(0, 3).map((tech, index) => (
                    <span 
@@ -99,11 +98,10 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
         ))}
       </div>
 
-      {/* --- THE EXPANDED OVERLAY --- */}
+      {/* --- THE EXPANDED OVERLAY (Unchanged) --- */}
       <AnimatePresence>
         {selectedId && (
           <>
-            {/* Dark Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -112,7 +110,6 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
               className="fixed inset-0 bg-black/80 z-40 backdrop-blur-sm"
             />
 
-            {/* Expanded Card */}
             <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
               <motion.div
                 layoutId={`card-${selectedId}`} 
@@ -124,17 +121,15 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                   
                   return (
                     <div className="relative">
-                      {/* Close Button */}
                       <button 
-                         onClick={() => setSelectedId(null)}
-                         className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
+                          onClick={() => setSelectedId(null)}
+                          className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
 
-                      {/* Header Image */}
                       <div 
                         className="h-64 bg-cover bg-center relative"
                         style={{ backgroundImage: `url(${getJobImage(job)})` }}
@@ -145,7 +140,6 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                       <div className="p-8">
                         <motion.h3 className="text-3xl font-bold text-white mb-2">{job.title}</motion.h3>
                         
-                        {/* --- UPDATED MODAL SECTION: Company + Duration --- */}
                         <div className="flex items-center gap-4 mb-6">
                             <motion.p className="text-indigo-400 text-lg font-medium">
                                 {job.company}
