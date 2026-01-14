@@ -1,50 +1,79 @@
 import React from 'react';
+import { motion } from 'motion/react'; 
 
 const Hero = () => {
   return (
-    <div className="relative bg-gray-900 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        <div className="relative z-10 pb-8 bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-          
-          <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-            <div className="sm:text-center lg:text-left">
-              <h1 className="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl">
-                <span className="block xl:inline">Hi, I'm Moneda</span>{' '}
-                <span className="block text-indigo-500 xl:inline">Full Stack Developer</span>
-              </h1>
-              <p className="mt-3 text-base text-gray-400 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                Building secure, scalable web applications with Django and React. 
-                Currently exploring Home Labs, NAS Infrastructure, and Cloudflare Security.
-              </p>
-              <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                <div className="rounded-md shadow">
-                  <a href="/jobs" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
-                    View My Work
-                  </a>
-                </div>
-                <div className="mt-3 sm:mt-0 sm:ml-3">
-                  <a href="mailto:contact@guimoneda.com" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg">
-                    Contact Me
-                  </a>
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
+    <section className="relative w-full min-h-[600px] flex items-center bg-gray-900 overflow-hidden">
       
-      {/* Decorative Image/Blob on the right */}
-      <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-800 flex items-center justify-center">
-         {/* Placeholder for your avatar */}
-         <img 
-            className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full opacity-60 hover:opacity-100 transition duration-500" 
-            src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" 
-            alt="Coding setup" 
-         />
+      {/* Background Elements (Optional, kept simple for now) */}
+      <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px]" />
       </div>
-    </div>
+
+      <div className="container mx-auto px-4 z-10 grid md:grid-cols-2 gap-12 items-center">
+        
+        {/* Left Content */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-left"
+        >
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-6">
+            Hi, I'm Moneda <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-500">
+              Senior QA Engineer
+            </span>
+          </h1>
+          
+          <p className="text-gray-300 text-lg md:text-xl leading-relaxed mb-8 max-w-lg">
+            <strong>10+ years</strong> of experience ensuring software excellence. 
+            A former Technical Program Manager returning to my engineering roots to build 
+            robust automation frameworks using <strong>Python</strong>, <strong>Selenium</strong>, and <strong>Robot Framework</strong>.
+          </p>
+
+          <div className="flex flex-wrap gap-4">
+            <button className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-indigo-500/30">
+              View My Resume
+            </button>
+            <button className="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-lg border border-gray-700 transition-all">
+              Contact Me
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Right Image/Graphic */}
+        <motion.div 
+           initial={{ opacity: 0, x: 50 }}
+           animate={{ opacity: 1, x: 0 }}
+           transition={{ duration: 0.8, delay: 0.2 }}
+           className="relative hidden md:block"
+        >
+          {/* You can replace this with your profile pic or a code snippet image */}
+          <div className="relative w-full h-[400px] bg-gray-800/50 rounded-2xl border border-gray-700 p-4 shadow-2xl backdrop-blur-sm">
+             {/* Decorative Code Snippet UI */}
+             <div className="flex gap-2 mb-4">
+               <div className="w-3 h-3 rounded-full bg-red-500"/>
+               <div className="w-3 h-3 rounded-full bg-yellow-500"/>
+               <div className="w-3 h-3 rounded-full bg-green-500"/>
+             </div>
+             <div className="space-y-2 font-mono text-sm">
+               <div className="text-gray-400"># Automation Framework Setup</div>
+               <div className="text-purple-400">class <span className="text-yellow-300">TestAutomation</span>:</div>
+               <div className="text-gray-300 pl-4">def <span className="text-blue-400">__init__</span>(self):</div>
+               <div className="text-green-400 pl-8">self.tools = ["Selenium", "Appium", "Python"]</div>
+               <div className="text-green-400 pl-8">self.goal = "Zero Defects"</div>
+               <br />
+               <div className="text-gray-300 pl-4">def <span className="text-blue-400">run_test</span>(self):</div>
+               <div className="text-green-400 pl-8">return "Quality Assured"</div>
+             </div>
+          </div>
+        </motion.div>
+
+      </div>
+    </section>
   );
 };
-
 
 export default Hero;
