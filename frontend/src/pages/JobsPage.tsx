@@ -26,6 +26,13 @@ const JobsPage = () => {
           <EducationList />
         </div>
 
+        <div>
+          <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">
+            Certifications
+          </h2>
+          <EducationList />
+        </div>
+
       </div>
     </div>
   );

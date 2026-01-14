@@ -36,3 +36,15 @@ class Education(models.Model):
     
     def __str__(self):
         return f"{self.degree} at {self.institution}"
+
+class Certification(models.Model):
+    name = models.CharField(max_length=200) # e.g. "CompTIA A+"
+    issuing_organization = models.CharField(max_length=200) # e.g. "CompTIA"
+    issue_date = models.DateField()
+    expiration_date = models.DateField(null=True, blank=True)
+    credential_url = models.URLField(blank=True, null=True) # Link to verify
+    is_active = models.BooleanField(default=False) # Check this if it never expires or is your main focus
+    description = RichTextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name

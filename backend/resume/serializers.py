@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Job, Education
+from .models import Job, Education, Certification
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -35,3 +35,8 @@ class EducationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Education
         fields = ['degree', 'institution', 'start_date', 'end_date', 'is_active']
+
+class CertificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certification
+        fields = '__all__'

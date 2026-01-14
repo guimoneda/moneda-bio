@@ -2,8 +2,8 @@
 
 # Create your views here.
 from rest_framework import generics
-from .models import Job, Education
-from .serializers import JobSerializer, EducationSerializer
+from .models import Job, Education, Certification
+from .serializers import JobSerializer, EducationSerializer, CertificationSerializer
 
 class JobList(generics.ListAPIView):
     # Get all jobs, sorted by start date (defined in model)
@@ -13,3 +13,7 @@ class JobList(generics.ListAPIView):
 class EducationList(generics.ListAPIView):
     queryset = Education.objects.all()
     serializer_class = EducationSerializer
+
+class CertificationList(generics.ListAPIView):
+    queryset = Certification.objects.all().order_by('-issue_date')
+    serializer_class = CertificationSerializer
