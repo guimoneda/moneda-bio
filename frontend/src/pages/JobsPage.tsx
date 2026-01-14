@@ -2,7 +2,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import JobList from '../components/JobList';
 import EducationList from '../components/EducationList';
-import Certifications from '../components/Certifications';
+import Certifications from '../components/CertificationList';
 
 const JobsPage = () => {
   return (
@@ -31,7 +31,7 @@ const JobsPage = () => {
           <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">
             Certifications
           </h2>
-          <Certifications />
+          <CertificationList />
         </div>
 
       </div>
