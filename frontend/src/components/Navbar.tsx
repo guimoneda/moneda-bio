@@ -26,10 +26,11 @@ const Navbar = () => {
               <Link to="/jobs" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 Experience
               </Link>
-              {/* Highlighted Login/Admin Button */}
-              <Link to="/admin" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                Admin
-              </Link>
+              <a 
+                href="/admin/" 
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                  Admin
+              </a>
             </div>
           </div>
           
