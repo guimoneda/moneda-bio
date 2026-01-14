@@ -6,7 +6,7 @@ interface Job {
   title: string;
   company: string;
   description: string;
-  more_details?: string; // <--- 1. ADD THIS
+  more_details?: string;
   technologies: string[];
   start_date: string;
   duration?: string;
@@ -50,17 +50,20 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
             layoutId={`card-${job.id}`} 
             key={job.id}
             onClick={() => setSelectedId(job.id)}
-            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[350px]"
+            // CHANGED: Fixed height to 280px (landscape card) and added hover border effect
+            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[280px] hover:border-indigo-500/50 transition-colors"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
+            {/* Background Image: Reduced opacity for better text readability */}
             <div 
-              className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500"
+              className="absolute inset-0 bg-cover bg-center opacity-10 group-hover:opacity-30 transition-opacity duration-500"
               style={{ backgroundImage: `url(${getJobImage(job)})` }} 
             />
             
-            <div className="p-6 relative z-10 flex flex-col flex-grow">
-              <motion.h3 className="text-xl font-bold text-white">{job.title}</motion.h3>
+            {/* CHANGED: Reduced padding to p-5 to fit the smaller card */}
+            <div className="p-5 relative z-10 flex flex-col flex-grow">
+              <motion.h3 className="text-xl font-bold text-white leading-tight">{job.title}</motion.h3>
               
               <div className="flex justify-between items-start mb-2 mt-1">
                 <motion.p className="text-indigo-400 text-sm font-medium">{job.company}</motion.p>
@@ -71,9 +74,9 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                 )}
               </div>
               
-              {/* Card View: Shows ONLY description */}
+              {/* CHANGED: line-clamp-3 ensures text doesn't overflow the shorter card */}
               <div 
-                className="text-gray-400 text-sm line-clamp-4 mb-4 [&_p]:mb-1 [&_p]:inline-block"
+                className="text-gray-400 text-sm line-clamp-3 mb-4 [&_p]:mb-1 [&_p]:inline-block"
                 dangerouslySetInnerHTML={{ __html: job.description }}
               />
 
@@ -147,8 +150,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                         >
                           <div 
                             className="[&_p]:mb-4 [&_b]:font-bold [&_strong]:font-bold [&_strong]:text-white"
-                            // 2. CONCATENATION LOGIC HERE:
-                            // We combine description + a line break + more_details (if it exists)
+                            // Concatenation Logic: Combines short + long description
                             dangerouslySetInnerHTML={{ 
                               __html: job.description + (job.more_details ? `<br/><br/>${job.more_details}` : '') 
                             }} 
