@@ -28,7 +28,7 @@ DEBUG = False
 if not SECRET_KEY and not DEBUG:
     raise ValueError("No DJANGO_SECRET_KEY set for production")
 
-ALLOWED_HOSTS = ['bio.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend']
+ALLOWED_HOSTS = ['guimoneda.com', 'www.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend']
 
 # SECURITY: Trust the 'HTTPS' signal from Cloudflare
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -38,7 +38,7 @@ USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
 # Trust the secure Cloudflare domain for form submissions
-CSRF_TRUSTED_ORIGINS = ['https://bio.guimoneda.com']
+CSRF_TRUSTED_ORIGINS = ['https://guimoneda.com', 'https://www.guimoneda.com']
 
 # Application definition
 
@@ -153,7 +153,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Allow React to talk to Django
 CORS_ALLOWED_ORIGINS = [
-    "https://bio.guimoneda.com",
+    "https://guimoneda.com",
     "http://localhost:3000",
 ]
 
