@@ -8,7 +8,7 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ['id', 'company', 'title', 'start_date', 'end_date', 'description', 'technologies', 'image', 'image_url', 'is_current', 'duration']
+        fields = ['id', 'company', 'title', 'start_date', 'end_date', 'description', 'more_details', 'technologies', 'image', 'image_url', 'is_current', 'duration']
 
     def get_duration(self, obj):
         start = obj.start_date

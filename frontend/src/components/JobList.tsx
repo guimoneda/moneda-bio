@@ -5,7 +5,8 @@ interface Job {
   id: number;
   title: string;
   company: string;
-  description: string;
+  description: string;   // Short summary
+  more_details?: string; // New long description
   technologies: string[];
   start_date: string;
   duration?: string;
@@ -43,18 +44,17 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
 
   return (
     <div className="relative"> 
-      {/* --- THE GRID VIEW --- */}
+      {/* --- GRID VIEW (Uses Short 'description') --- */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {displayedJobs.map((job) => (
           <motion.div
             layoutId={`card-${job.id}`} 
             key={job.id}
             onClick={() => setSelectedId(job.id)}
-            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[350px]"
+            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[420px]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-             {/* Background Image Placeholder */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500"
               style={{ backgroundImage: `url(${getJobImage(job)})` }} 
@@ -64,17 +64,15 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
               <motion.h3 className="text-xl font-bold text-white">{job.title}</motion.h3>
               
               <div className="flex justify-between items-start mb-2 mt-1">
-                <motion.p className="text-indigo-400 text-sm font-medium">
-                  {job.company}
-                </motion.p>
-                
+                <motion.p className="text-indigo-400 text-sm font-medium">{job.company}</motion.p>
                 {job.duration && (
                   <span className="text-xs font-mono text-gray-400 bg-gray-900/60 px-2 py-0.5 rounded border border-gray-700/50 whitespace-nowrap ml-2">
                     {job.duration}
                   </span>
                 )}
               </div>
-              {/* Job Description with limited lines */}
+              
+              {/* SHORT DESCRIPTION FOR CARD */}
               <div 
                 className="text-gray-400 text-sm line-clamp-4 mb-4 [&_p]:mb-1 [&_p]:inline-block"
                 dangerouslySetInnerHTML={{ __html: job.description }}
@@ -82,10 +80,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
 
               <div className="flex flex-wrap gap-2 mt-auto">
                 {job.technologies && job.technologies.slice(0, 3).map((tech, index) => (
-                   <span 
-                     key={index} 
-                     className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md"
-                   >
+                   <span key={index} className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md">
                      {tech}
                    </span>
                 ))}
@@ -95,7 +90,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
         ))}
       </div>
 
-      {/* --- THE EXPANDED OVERLAY (Unchanged) --- */}
+      {/* --- MODAL VIEW (Uses 'more_details' or fallback) --- */}
       <AnimatePresence>
         {selectedId && (
           <>
@@ -138,10 +133,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                         <motion.h3 className="text-3xl font-bold text-white mb-2">{job.title}</motion.h3>
                         
                         <div className="flex items-center gap-4 mb-6">
-                            <motion.p className="text-indigo-400 text-lg font-medium">
-                                {job.company}
-                            </motion.p>
-                            
+                            <motion.p className="text-indigo-400 text-lg font-medium">{job.company}</motion.p>
                             {job.duration && (
                                 <span className="text-sm font-mono text-gray-300 bg-gray-800 px-3 py-1 rounded-full border border-gray-600">
                                     {job.duration}
@@ -149,6 +141,8 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                             )}
                         </div>
                         
+                        {/* LONG DETAILS FOR MODAL */}
+                        {/* We try 'more_details' first, if empty, we fall back to 'description' */}
                         <motion.div 
                           initial={{ opacity: 0 }} 
                           animate={{ opacity: 1 }} 
@@ -157,7 +151,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                         >
                           <div 
                             className="[&_p]:mb-4 [&_b]:font-bold [&_strong]:font-bold [&_strong]:text-white"
-                            dangerouslySetInnerHTML={{ __html: job.description }} 
+                            dangerouslySetInnerHTML={{ __html: job.more_details || job.description }} 
                           />
                         </motion.div>
 
@@ -165,10 +159,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                            <h4 className="text-gray-400 text-sm uppercase tracking-wider mb-3">Technologies</h4>
                            <div className="flex flex-wrap gap-2">
                              {job.technologies && job.technologies.map((tech, index) => (
-                               <span 
-                                 key={index} 
-                                 className="px-3 py-1.5 text-sm font-medium bg-gray-700 text-gray-300 rounded-md"
-                               >
+                               <span key={index} className="px-3 py-1.5 text-sm font-medium bg-gray-700 text-gray-300 rounded-md">
                                  {tech}
                                </span>
                              ))}
