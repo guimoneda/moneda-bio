@@ -5,8 +5,8 @@ interface Job {
   id: number;
   title: string;
   company: string;
-  description: string;   // Short summary
-  more_details?: string; // New long description
+  description: string;
+  more_details?: string; // <--- 1. ADD THIS
   technologies: string[];
   start_date: string;
   duration?: string;
@@ -44,14 +44,13 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
 
   return (
     <div className="relative"> 
-      {/* --- GRID VIEW (Uses Short 'description') --- */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {displayedJobs.map((job) => (
           <motion.div
             layoutId={`card-${job.id}`} 
             key={job.id}
             onClick={() => setSelectedId(job.id)}
-            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[420px]"
+            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[350px]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -72,7 +71,7 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                 )}
               </div>
               
-              {/* SHORT DESCRIPTION FOR CARD */}
+              {/* Card View: Shows ONLY description */}
               <div 
                 className="text-gray-400 text-sm line-clamp-4 mb-4 [&_p]:mb-1 [&_p]:inline-block"
                 dangerouslySetInnerHTML={{ __html: job.description }}
@@ -90,7 +89,6 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
         ))}
       </div>
 
-      {/* --- MODAL VIEW (Uses 'more_details' or fallback) --- */}
       <AnimatePresence>
         {selectedId && (
           <>
@@ -141,8 +139,6 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                             )}
                         </div>
                         
-                        {/* LONG DETAILS FOR MODAL */}
-                        {/* We try 'more_details' first, if empty, we fall back to 'description' */}
                         <motion.div 
                           initial={{ opacity: 0 }} 
                           animate={{ opacity: 1 }} 
@@ -151,7 +147,11 @@ const JobList: React.FC<JobListProps> = ({ limit }) => {
                         >
                           <div 
                             className="[&_p]:mb-4 [&_b]:font-bold [&_strong]:font-bold [&_strong]:text-white"
-                            dangerouslySetInnerHTML={{ __html: job.more_details || job.description }} 
+                            // 2. CONCATENATION LOGIC HERE:
+                            // We combine description + a line break + more_details (if it exists)
+                            dangerouslySetInnerHTML={{ 
+                              __html: job.description + (job.more_details ? `<br/><br/>${job.more_details}` : '') 
+                            }} 
                           />
                         </motion.div>
 
