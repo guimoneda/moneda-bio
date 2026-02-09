@@ -58,15 +58,15 @@ const EducationList: React.FC = () => {
               
               {/* DATE GRID - Only rendered if course is NOT active */}
               {!school.is_active && (
-                <div className="mt-2 md:mt-0 text-gray-500 text-sm font-mono grid grid-cols-[85px_20px_85px] items-center">
+                <div className="mt-2 md:mt-0 text-gray-500 text-sm font-mono grid grid-cols-[auto_20px_auto] items-center gap-2">
                   <span className="text-right">
-                    {school.start_date}
+                    Started: {school.start_date}
                   </span>
                   <span className="text-center text-gray-600">
-                    &ndash; 
+                    /
                   </span> 
                   <span className="text-left">
-                     {school.end_date}
+                     Completed: {school.end_date}
                   </span>
                 </div>
               )}
