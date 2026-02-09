@@ -83,7 +83,7 @@ const CertificationList: React.FC = () => {
                  {cert.expiration_date ? (
                      <>
                         <span className="text-center text-gray-600">/</span>
-                        <span className="text-left text-red-400/80">
+                        <span className={`text-left ${new Date() < new Date(cert.expiration_date) ? 'text-green-400/80' : 'text-red-400/80'}`}>
                             Expires: {cert.expiration_date}
                         </span>
                      </>
