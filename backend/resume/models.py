@@ -1,5 +1,5 @@
 from django.db import models
-from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from ckeditor.fields import RichTextField
 
 class Job(models.Model):
@@ -12,7 +12,7 @@ class Job(models.Model):
     is_current = models.BooleanField(default=False)
     image = models.ImageField(upload_to='jobs/', blank=True, null=True)
     image_url = models.URLField(blank=True, null=True)
-    technologies = models.JSONField(default=list, blank=True)
+    technologies = ArrayField(models.CharField(max_length=200), blank=True, default=list)
 
     def __str__(self):
         return f"{self.title} at {self.company}"
