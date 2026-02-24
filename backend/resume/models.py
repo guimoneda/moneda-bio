@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
+from django.db import models
 from ckeditor.fields import RichTextField
 
 class Job(models.Model):
@@ -12,11 +12,10 @@ class Job(models.Model):
     is_current = models.BooleanField(default=False)
     image = models.ImageField(upload_to='jobs/', blank=True, null=True)
     image_url = models.URLField(blank=True, null=True)
-    technologies = ArrayField(
-        models.CharField(max_length=30, blank=True),
-        blank=True,
-        default=list
-    )
+    technologies = models.JSONField(default=list, blank=True)
+
+    def __str__(self):
+        return f"{self.title} at {self.company}"
     
 class Education(models.Model):
     institution = models.CharField(max_length=200) # e.g., "Harvard University"
@@ -30,10 +29,6 @@ class Education(models.Model):
      # This makes it sort automatically by newest first
     class Meta:
         ordering = ['-start_date']
-
-    def __str__(self):
-        return f"{self.title} at {self.company}"
-
     
     def __str__(self):
         return f"{self.degree} at {self.institution}"
