@@ -18,7 +18,7 @@ services:
   backend:
     build: ./backend
     container_name: bio-backend
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py collectstatic --noinput && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
     ports:
@@ -29,6 +29,7 @@ services:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       # dynamically build the URL using the same variables
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@bio-db:5432/${POSTGRES_DB}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
       ALLOWED_HOSTS: 'guimoneda.com,www.guimoneda.com,localhost,127.0.0.1,bio-backend,192.168.1.226'
       CSRF_TRUSTED_ORIGINS: 'https://guimoneda.com,https://www.guimoneda.com,http://192.168.1.226'
     restart: unless-stopped
