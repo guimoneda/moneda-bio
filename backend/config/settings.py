@@ -30,7 +30,7 @@ DEBUG = (os.environ.get('DJANGO_DEBUG') or 'True') == 'True'
 if not SECRET_KEY and not DEBUG:
     raise ValueError("No DJANGO_SECRET_KEY set for production")
 
-ALLOWED_HOSTS = ['guimoneda.com', 'www.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend', '192.168.1.226']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 # SECURITY: Trust the 'HTTPS' signal from Cloudflare
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -40,7 +40,7 @@ USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
 # Trust the secure Cloudflare domain for form submissions
-CSRF_TRUSTED_ORIGINS = ['https://guimoneda.com', 'https://www.guimoneda.com']
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost').split(',')
 
 # Application definition
 

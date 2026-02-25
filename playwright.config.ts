@@ -17,8 +17,8 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // Update this to your React app's local port (usually 3000 or 5173)
-    baseURL: 'http://localhost:3000/',
-    //baseURL: 'https://guimoneda.com/',
+    //baseURL: 'http://localhost:3000/',
+    baseURL: 'https://guimoneda.com/',
 
     /* Collect trace when failing. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
