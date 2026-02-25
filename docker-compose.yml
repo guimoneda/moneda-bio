@@ -34,20 +34,20 @@ services:
       CSRF_TRUSTED_ORIGINS: 'https://guimoneda.com,https://www.guimoneda.com,http://192.168.1.226'
     restart: unless-stopped
 
-  # 3. THE FRONTEND (React/Node)
+ # 3. THE FRONTEND (React/Node)
   frontend:
     image: node:20-alpine
     container_name: bio-frontend
     working_dir: /app
     environment:
       WDS_SOCKET_PORT: "0"
-      CHOKIDAR_USEPOLLING: "true"
-      WATCHPACK_POLLING: "true"
+      HOST: "0.0.0.0"                           # <--- 1. Tells React to accept outside connections
+      DANGEROUSLY_DISABLE_HOST_CHECK: "true"    # <--- 2. Stops React from throwing Host Header errors
     volumes:
       - ./frontend:/app
     command: sh -c "npm install && npm start"
     ports:
-      - "3000:3000"
+      - "3000:3000"     
     
 
   # 4. THE TUNNEL
