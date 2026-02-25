@@ -41,6 +41,8 @@ services:
     working_dir: /app
     environment:
       WDS_SOCKET_PORT: "0"
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
     volumes:
       - ./frontend:/app
     command: sh -c "npm install && npm start"
