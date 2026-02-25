@@ -21,16 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or 'django-insecure-dummy-key-for-local-dev'
-
-# Turn DEBUG on for local development, but keep it False in production
-DEBUG = (os.environ.get('DJANGO_DEBUG') or 'True') == 'True'
-
+# We use a default just in case, but in production, it MUST use the env var
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+DEBUG = False
 # Optional: Add a safety check to crash if the key is missing in production
 if not SECRET_KEY and not DEBUG:
     raise ValueError("No DJANGO_SECRET_KEY set for production")
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = ['guimoneda.com', 'www.guimoneda.com', 'localhost', '127.0.0.1', 'bio-backend']
 
 # SECURITY: Trust the 'HTTPS' signal from Cloudflare
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -40,7 +38,7 @@ USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
 # Trust the secure Cloudflare domain for form submissions
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost').split(',')
+CSRF_TRUSTED_ORIGINS = ['https://guimoneda.com', 'https://www.guimoneda.com']
 
 # Application definition
 
@@ -135,7 +133,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = '/django_static/'
+STATIC_URL = 'django_static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
