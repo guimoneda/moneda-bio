@@ -21,12 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dummy-key-for-local-dev')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or 'django-insecure-dummy-key-for-local-dev'
 
 # Turn DEBUG on for local development, but keep it False in production
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 DEBUG = (os.environ.get('DJANGO_DEBUG') or 'True') == 'True'
 
 # Optional: Add a safety check to crash if the key is missing in production
