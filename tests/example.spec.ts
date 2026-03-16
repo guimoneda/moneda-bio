@@ -26,4 +26,10 @@ test('Check mailto link details', async ({ page }) => {
 await expect(page.getByRole('link', { name: 'Contact Me' })).toHaveAttribute('href', 'mailto:contact@guimoneda.com');
 });
 
+test('Check Latest Projects', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('heading', { name: 'Latest Projects' }).click();
+  await expect(page.getByRole('heading', { name: 'Latest Projects' })).toBeVisible();
+});
+
 });

@@ -47,12 +47,12 @@ This boots the backend (Django) and frontend (React) services per [docker-compos
 
 ## Run locally (native)
 Backend
-- python -m venv .venv && source .venv/bin/activate
+- python3 -m venv .venv && source .venv/bin/activate
 - cd backend
 - pip install -r requirements.txt
-- python manage.py migrate
-- python manage.py createsuperuser
-- python manage.py runserver
+- python3 manage.py migrate
+- python3 manage.py createsuperuser
+- python3 manage.py runserver
 
 Frontend
 - cd frontend

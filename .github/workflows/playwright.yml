@@ -8,6 +8,8 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.41.0-jammy
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -25,3 +27,15 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.41.0-jammy
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npx playwright test
