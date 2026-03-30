@@ -23,17 +23,15 @@ const Hero = () => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 tracking-tight">
             Hi, I'm Moneda <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-500">
-              Senior QA Engineer
+              Senior SDET / Automation Engineer
             </span>
           </h1>
           
           {/* [LEFT] HERO text */}
           <p className="text-gray-300 text-lg md:text-xl leading-relaxed mb-8 max-w-lg">
-            <strong>10+ years</strong> of experience ensuring software excellence. 
-            A former Technical Program Manager returning to my engineering roots to build 
-            robust automation frameworks using <strong>Python</strong>, <strong>Selenium</strong>, and <strong>Robot Framework</strong>.
+            <strong>8+ years</strong> building scalable test automation frameworks for <strong>web</strong>, <strong>mobile</strong>, and <strong>microservices architectures</strong>. 
+            Specialized in <strong>Selenium</strong>, <strong>Robot Framework</strong>, <strong>CI/CD</strong>, and <strong>cloud environments</strong>.
           </p>
-
           <div className="flex flex-wrap gap-4">
             <a href="/jobs" className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-indigo-500/30 text-base md:text-lg">
               View My Work
