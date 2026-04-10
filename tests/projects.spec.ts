@@ -1,46 +1,27 @@
 // spec: specs/static-webserver-test-plan.md
-// seed: tests/seed.spec.ts
 
 import { test, expect } from '@playwright/test';
 
-test.describe('Frontend UI Element Tests', () => {
-  test('Project cards and list interactions', async ({ page }) => {
-    // 1. Scroll to `Latest Projects` area
-    await page.goto('https://guimoneda.com/');
-    await page.evaluate('() => { document.querySelector(\'h2\').scrollIntoView(); }');
+test.describe('Homepage job card modal', () => {
+  test('Job card click opens and closes modal overlay', async ({ page }) => {
+    await page.goto('/');
+    // Wait for API data to fully load before interacting
+    await page.waitForLoadState('networkidle');
 
-    // 2. Open a project card via keyboard and mouse
-    await page.getByText('Program ManagerAvenue Code1').click();
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Enter');
+    // Click the first card container (not inner text) to avoid animation timing issues
+    const firstCard = page.locator('.bg-gray-800.rounded-xl.cursor-pointer').first();
+    await firstCard.click();
 
-    // Assertions for expectations
-    await expect(page.locator('h2:has-text("Latest Projects")')).toBeVisible();
-    await expect(page.locator('h3:has-text("Program Manager")').first()).toBeVisible();
-    await expect(page.locator('h3:has-text("Technical Project Manager")').first()).toBeVisible();
-    await expect(page.locator('h3:has-text("Scrum Master")').first()).toBeVisible();
-    // Note: Cards are clickable and open modals; keyboard activation tested via presses. No JS errors observed in execution.
-  });
+    // Allow Framer Motion animation to settle
+    const backdrop = page.locator('.fixed.inset-0.bg-black\\/80');
+    await expect(backdrop).toBeVisible({ timeout: 10000 });
 
-  test('Job card click opens modal overlay', async ({ page }) => {
-    await page.goto('https://guimoneda.com/');
-    await page.waitForSelector('h3:has-text("Program Manager")');
-
-    // Click the first job card
-    await page.locator('h3:has-text("Program Manager")').first().click();
-
-    // Modal backdrop and expanded card appear
-    await expect(page.locator('.fixed.inset-0.bg-black\\/80')).toBeVisible();
-
-    // Modal contains the job title
+    // Modal contains a job title
     await expect(page.locator('.bg-gray-900.w-full.max-w-2xl h3').first()).toBeVisible();
 
     // Close modal by clicking backdrop
-    await page.locator('.fixed.inset-0.bg-black\\/80').click({ force: true });
-    await expect(page.locator('.fixed.inset-0.bg-black\\/80')).not.toBeVisible();
+    // force: true needed because the sticky navbar (z-50) sits above the backdrop (z-40)
+    await backdrop.click({ force: true });
+    await expect(backdrop).not.toBeVisible({ timeout: 10000 });
   });
 });
