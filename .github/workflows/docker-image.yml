@@ -35,8 +35,9 @@ jobs:
           retention-days: 30
 
   deploy:
-    needs: test
-    if: ${{ always() }}   # TEMP: deploy even if the prod-facing Playwright tests fail (site is down). Revert once recovered.
+    # TEMP: run independently of the prod-facing Playwright tests. Those tests hit the live
+    # site; while it's down they hang to the timeout and would block redeploy. Restore
+    # `needs: test` once the site is recovered.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
