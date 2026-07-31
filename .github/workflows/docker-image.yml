@@ -5,8 +5,53 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
-    timeout-minutes: 60
+  # Ship first. The smoke tests below verify the LIVE site, so they can only
+  # run after a deploy — gating deploy on them would deadlock recovery when the
+  # site is down (see git history for the outage that taught us this).
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Cloudflared
+        run: |
+          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared.deb
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # Configure SSH to tunnel through Cloudflare
+          # NOTE: Ensure 'ssh-moneda' matches your Cloudflare Public Hostname
+          echo "Host nas
+            HostName "${{ secrets.NAS_HOST }}"
+            User "${{ secrets.NAS_USER }}"
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+            ProxyCommand cloudflared access ssh --hostname %h" >> ~/.ssh/config
+
+      - name: Deploy Files & Update Secrets
+        run: |
+          # 1. SSH into NAS
+          # 2. Create the .env file with ALL secrets (Tunnel + DB)
+          # 3. Pull code and restart
+
+          ssh nas "cd /volume2/docker/moneda-bio && \
+          printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
+          git fetch origin main && \
+          git reset --hard origin/main && \
+          docker compose up -d"
+
+  # Post-deploy smoke test against the live production site.
+  # Runs only if deploy succeeded. A failure here alerts (red X) but cannot
+  # block a deploy — the fix has already shipped.
+  smoke:
+    needs: deploy
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +70,18 @@ jobs:
             playwright-${{ runner.os }}-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      # A fresh container reinstalls deps and recompiles (CRA dev server),
+      # so wait for the site to answer 200 before testing — avoids false fails.
+      - name: Wait for site to be healthy
+        run: |
+          for i in $(seq 1 40); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://guimoneda.com/ || true)
+            echo "attempt $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 15
+          done
+          echo "::error::site did not return 200 within ~10 min after deploy" >&2
+          exit 1
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
@@ -33,44 +90,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-
-  deploy:
-    # TEMP: run independently of the prod-facing Playwright tests. Those tests hit the live
-    # site; while it's down they hang to the timeout and would block redeploy. Restore
-    # `needs: test` once the site is recovered.
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Install Cloudflared
-        run: |
-          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-          sudo dpkg -i cloudflared.deb
-
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          
-          # Configure SSH to tunnel through Cloudflare
-          # NOTE: Ensure 'ssh-moneda' matches your Cloudflare Public Hostname
-          echo "Host nas    
-            HostName "${{ secrets.NAS_HOST }}" 
-            User "${{ secrets.NAS_USER }}"
-            IdentityFile ~/.ssh/id_ed25519
-            StrictHostKeyChecking no
-            ProxyCommand cloudflared access ssh --hostname %h" >> ~/.ssh/config
-
-      - name: Deploy Files & Update Secrets
-        run: |
-          # 1. SSH into NAS
-          # 2. Create the .env file with ALL secrets (Tunnel + DB)
-          # 3. Pull code and restart
-          
-          ssh nas "cd /volume2/docker/moneda-bio && \
-          printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
-          git fetch origin main && \
-          git reset --hard origin/main && \
-          docker-compose up -d"
