@@ -35,7 +35,7 @@ services:
 
   # 3. THE FRONTEND (React/Node)
   frontend:
-    image: node:20-alpine
+    image: node:20-slim   # Debian/glibc — the Alpine/musl build segfaults on this NAS
     container_name: bio-frontend
     working_dir: /app
     environment:
@@ -45,7 +45,8 @@ services:
     command: sh -c "npm install && npm start"
     ports:
       - "3000:3000"
-    
+    restart: unless-stopped
+
 
   # 4. THE TUNNEL
   cloudflared:
