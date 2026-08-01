@@ -19,9 +19,10 @@ test.describe('Homepage job card modal', () => {
     // Modal contains a job title
     await expect(page.locator('.bg-gray-900.w-full.max-w-2xl h3').first()).toBeVisible();
 
-    // Close modal by clicking backdrop
-    // force: true needed because the sticky navbar (z-50) sits above the backdrop (z-40)
-    await backdrop.click({ force: true });
+    // Close the modal via its close (X) button — deterministic. Clicking the
+    // backdrop is racy: it's full-screen, so a centered click lands on the modal
+    // card (pointer-events-auto) rather than the backdrop and never closes it.
+    await page.locator('.bg-gray-900.w-full.max-w-2xl button').first().click();
     await expect(backdrop).not.toBeVisible({ timeout: 10000 });
   });
 });
