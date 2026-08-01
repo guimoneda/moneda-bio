@@ -40,6 +40,19 @@ USE_X_FORWARDED_PORT = True
 # Trust the secure Cloudflare domain for form submissions
 CSRF_TRUSTED_ORIGINS = ['https://guimoneda.com', 'https://www.guimoneda.com']
 
+# --- Production security hardening ---
+# Site is served HTTPS-only via Cloudflare, so only send cookies over HTTPS.
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+# Redirect any HTTP request to HTTPS (the proxy header trusted above lets Django
+# recognise Cloudflare-terminated HTTPS, so this won't cause a redirect loop).
+SECURE_SSL_REDIRECT = True
+# HTTP Strict Transport Security. Start conservative (1 hour); once you've
+# confirmed nothing breaks, raise to a year (31536000) and consider preload.
+SECURE_HSTS_SECONDS = 3600
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = False
+
 # Application definition
 
 INSTALLED_APPS = [
