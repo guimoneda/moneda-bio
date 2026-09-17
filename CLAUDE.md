@@ -35,7 +35,13 @@ npx playwright test tests/smoke.spec.ts   # Run a single spec file
 npx playwright test --reporter=list # Output in terminal instead of HTML
 ```
 
-Playwright tests target the **production site** (`https://guimoneda.com`) — there is no local dev server wired up in `playwright.config.ts`.
+Playwright tests target the **production site** (`https://guimoneda.com`) by default. Override with `BASE_URL` to run against a local build or preview deployment:
+
+```bash
+BASE_URL=http://localhost:3000 npx playwright test
+```
+
+Because the default target is production, spec changes only pass once the frontend has been deployed.
 
 ### Docker (full stack)
 ```bash
@@ -60,11 +66,22 @@ Requires a `.env` file with: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
 
 ### Frontend (`frontend/`)
 - **React 19** + **TypeScript** + **Create React App**
-- **Tailwind CSS** for styling (dark theme, `bg-gray-900` base)
-- **motion/react** (Framer Motion v12 alpha) for card animations and expand/collapse transitions
-- Two routes: `/` (Home — shows Hero + 3 latest jobs) and `/jobs` (full job history)
-- `JobList` component accepts a `limit` prop to cap displayed items; fetches from `/api/jobs/` at runtime
+- **Tailwind CSS** driven entirely by design tokens — see "Design system" below
+- **motion/react** (Framer Motion v12 alpha) for entry choreography, page transitions and the shared-layout detail panel
+- Two routes: `/` (Home — Hero + technology marquee + 3 latest roles) and `/jobs` (full record: experience, education, certifications)
+- `JobList` accepts a `limit` prop to cap displayed items
+- Data access goes through `useResource` (`src/hooks/useResource.ts`), which models loading/ready/error explicitly and caches each URL at module level so `/api/jobs/` crosses the wire once per page view
 - The CRA dev server proxies `/api/` requests to the Django backend (implicit via browser — no explicit proxy config in `package.json`)
+
+### Design system — "Instrument"
+Technical-editorial: ink on bone, hairline rules, one accent, no rounded corners.
+
+- **Tokens** live as `R G B` triples on `:root` in `src/index.css` and are mapped to Tailwind utilities in `tailwind.config.js`: `canvas`, `panel`, `panel-hi`, `ink`, `mute`, `rule`, `signal`, `signal-ink`. Never hard-code a colour — add or use a token, so both themes stay in step.
+- **Two themes**, `data-theme="ink"` (dark) and `data-theme="paper"` (light), resolved before first paint by an inline script in `public/index.html` and toggled via `src/lib/theme.tsx`. Default follows `prefers-color-scheme`.
+- **One accent only** (`signal`). Status, focus, hover and emphasis all use it; resist introducing a second hue.
+- **Type**: Bricolage Grotesque (display), Inter Tight (body), JetBrains Mono (all metadata/labels). Display sizes are fluid `clamp()` steps (`text-display-xl` … `text-display-sm`); the `.label` component class is the monospace metadata voice.
+- **One easing curve**, `ease-instrument`, for every transition.
+- **Reduced motion** is honoured per-component, not just globally: components branch on `useReducedMotion()` to render a deliberate static composition (e.g. `Marquee` wraps instead of scrolling, `SignalGrid` draws one settled frame).
 
 ### Tests (`tests/`)
 - Playwright specs in `tests/` run against production
@@ -73,6 +90,9 @@ Requires a `.env` file with: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
 
 ## Key Conventions
 
-- Job cards use **Framer Motion shared layout** (`layoutId={card-${id}}`): clicking a card expands it into a modal overlay. The same `layoutId` is on both the card and the expanded modal — do not break this pairing.
-- Job `description` (short) is shown on the card; `more_details` (long) is concatenated in the expanded modal view.
-- The `Job` model's ordering is handled client-side in `JobList.tsx` (sort by `start_date` descending), not via Django `Meta.ordering`.
+- Experience is an **editorial index of rows**, not a grid of cards. Rows use **Framer Motion shared layout** (`layoutId={card-${id}}`): clicking a row morphs it into the detail panel. The same `layoutId` is on both the row and the panel — do not break this pairing.
+- Job `description` (short) is shown in the detail panel first, followed by `more_details` — they are rendered as two separate blocks, not concatenated into one HTML string.
+- CKEditor HTML from the API is rendered through `RichText`, which applies the `.rich` typographic contract from `index.css`. Do not drop raw `dangerouslySetInnerHTML` into components.
+- Job ordering is handled client-side by `byNewest` in `src/lib/jobs.ts` (sort by `start_date` descending), not via Django `Meta.ordering`.
+- **Never hard-code figures that the API already knows.** Hero statistics come from `deriveStats` in `src/lib/jobs.ts`, and the technology marquee is built from the technologies recorded against roles.
+- Playwright specs target elements by `data-testid` and accessible role/name, never by Tailwind class. Styling changes must not break the suite.

@@ -1,89 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react'; 
+import React from 'react';
+import Reveal from './Reveal';
+import RichText from './RichText';
+import { useResource } from '../hooks/useResource';
+import { pad, range } from '../lib/format';
 
 interface EducationItem {
-  id: number;
+  id?: number;
   institution: string;
   degree: string;
   start_date: string;
   end_date: string | null;
-  is_active: boolean; 
-  description: string;
+  is_active: boolean;
+  description?: string;
 }
 
+/** Education as a ledger: index, subject, status, institution, span. */
 const EducationList: React.FC = () => {
-  const [schools, setSchools] = useState<EducationItem[]>([]);
+  const state = useResource<EducationItem[]>('/api/education/');
 
-  useEffect(() => {
-    fetch('/api/education/')
-      .then((res) => res.json())
-      .then((data) => setSchools(data))
-      .catch((err) => console.error(err));
-  }, []);
+  if (state.status === 'loading') {
+    return (
+      <ul className="border-t border-rule/15" aria-busy="true">
+        {Array.from({ length: 2 }).map((_, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <li key={i} className="flex items-center gap-6 border-b border-rule/15 py-8">
+            <span className="h-3 w-6 animate-pulse bg-rule/10" />
+            <span className="h-6 w-1/3 animate-pulse bg-rule/10" />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  if (state.status === 'error') {
+    return (
+      <p className="border-y border-rule/15 py-10 text-mute" role="alert">
+        <span className="label mr-3 text-signal">Unavailable</span>
+        Education could not be loaded ({state.error}).
+      </p>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {schools.map((school, index) => (
-        <motion.div
-          key={school.id}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-          className={`bg-gray-800 rounded-xl p-6 border shadow-lg transition-colors ${
-            school.is_active 
-              ? 'border-green-500/30 hover:border-green-500/50' 
-              : 'border-gray-700 hover:border-indigo-500'
-          }`}
+    <ol className="border-t border-rule/15" data-testid="education-index">
+      {state.data.map((item, i) => (
+        <Reveal
+          as="li"
+          key={item.id ?? `${item.institution}-${item.degree}`}
+          delay={i * 0.06}
+          className="group border-b border-rule/15 py-8 md:py-10"
         >
-          <div className="flex flex-col mb-2">
-            
-            {/* ROW 1: Degree Title & Badge */}
-            <div className="flex justify-between items-start mb-1">
-              <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                {school.degree}
-                {school.is_active && (
-                  <span className="px-2 py-0.5 text-xs font-bold bg-green-900/50 text-green-400 rounded-full border border-green-700/50">
-                    CURRENT
+          <div className="md:grid md:grid-cols-12 md:gap-6">
+            <span className="label col-span-1 mb-3 block text-signal/70 md:mb-0">{pad(i + 1)}</span>
+
+            <div className="col-span-7">
+              <h3 className="flex flex-wrap items-center gap-x-4 gap-y-2 font-display text-display-sm font-semibold text-ink">
+                {item.degree}
+                {item.is_active && (
+                  <span className="inline-flex items-center gap-2 border border-signal/40 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-signal">
+                    <span className="h-1 w-1 animate-blink bg-signal" aria-hidden="true" />
+                    In progress
                   </span>
                 )}
               </h3>
-            </div>
-            
-            {/* ROW 2: Subtitle Row */}
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-              
-              <p className="text-indigo-400 font-medium text-lg">
-                {school.institution}
-              </p>
-              
-              {/* DATE GRID - Only rendered if course is NOT active */}
-              {!school.is_active && (
-                <div className="mt-2 md:mt-0 text-gray-500 text-sm font-mono grid grid-cols-[auto_20px_auto] items-center gap-2">
-                  <span className="text-right">
-                    Started: {school.start_date}
-                  </span>
-                  <span className="text-center text-gray-600">
-                    /
-                  </span> 
-                  <span className="text-left">
-                     Completed: {school.end_date}
-                  </span>
-                </div>
-              )}
-
+              <p className="mt-2 font-mono text-meta uppercase text-mute">{item.institution}</p>
+              <RichText html={item.description} className="mt-5 max-w-prose" />
             </div>
 
+            <span className="col-span-4 mt-4 block font-mono text-meta text-mute md:mt-0 md:text-right">
+              {range(item.start_date, item.end_date)}
+            </span>
           </div>
-          
-          {school.description && (
-            <div 
-              className="text-gray-400 mt-4 leading-relaxed border-t border-gray-700/50 pt-4 [&_p]:mb-4 [&_b]:font-bold [&_strong]:font-bold [&_strong]:text-white"
-              dangerouslySetInnerHTML={{ __html: school.description }}
-            />
-          )}
-        </motion.div>
+        </Reveal>
       ))}
-    </div>
+    </ol>
   );
 };
 

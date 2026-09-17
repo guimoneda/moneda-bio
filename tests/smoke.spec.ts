@@ -5,19 +5,22 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Frontend UI Element Tests', () => {
   test('Automated UI smoke test', async ({ page }) => {
-    // 1. Visit homepage and run a short smoke list: presence of nav, hero h1, primary CTA, three project cards, and footer social links
-    await page.goto('https://guimoneda.com/');
+    await page.goto('/');
 
-    // Assertions for expectations
-    await expect(page.locator('nav')).toBeVisible();
+    await expect(page.getByTestId('navbar')).toBeVisible();
     await expect(page.locator('h1')).toBeVisible();
-    await expect(page.locator('a:has-text("View My Work")')).toBeVisible();
-    await expect(page.locator('h3:has-text("Program Manager")')).toBeVisible();
-    await expect(page.locator('h3:has-text("Technical Project Manager")')).toBeVisible();
-    await expect(page.locator('h3:has-text("Scrum Master")')).toBeVisible();
-    await expect(page.locator('a[href*="github.com"]')).toBeVisible();
-    await expect(page.locator('a[href*="linkedin.com"]')).toBeVisible();
-    await expect(page.locator('a[href*="instagram.com"]')).toBeVisible();
-    // Note: No JavaScript console errors at page load (warnings present but non-fatal).
+    await expect(page.getByRole('link', { name: 'View My Work' })).toBeVisible();
+
+    // The home page shows the three most recent roles as index rows.
+    const rows = page.getByTestId('job-row');
+    await expect(rows).toHaveCount(3);
+    await expect(rows.first()).toBeVisible();
+
+    // Social links live in the footer, so scroll them into view first.
+    const footer = page.locator('footer');
+    await footer.scrollIntoViewIfNeeded();
+    await expect(footer.locator('a[href*="github.com"]')).toBeVisible();
+    await expect(footer.locator('a[href*="linkedin.com"]')).toBeVisible();
+    await expect(footer.locator('a[href*="instagram.com"]')).toBeVisible();
   });
 });

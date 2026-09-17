@@ -25,8 +25,10 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-     baseURL: 'https://guimoneda.com',
+    /* Base URL to use in actions like `await page.goto('')`.
+       Override with BASE_URL to run the suite against a local build or a
+       preview deployment instead of production. */
+    baseURL: process.env.BASE_URL || 'https://guimoneda.com',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
