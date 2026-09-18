@@ -1,0 +1,12 @@
+# Keep the build context minimal, and never copy a host-built tree into the
+# image — node_modules is installed from the lockfile inside the build stage.
+node_modules
+build
+npm-debug.log*
+.env
+.env.*
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md

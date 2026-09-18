@@ -15,8 +15,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Cloudflared
+        # Pinned deliberately. `releases/latest` let the deploy's own tooling
+        # change without a commit, so a green deploy was not reproducible.
+        # Bump this on purpose, not by accident.
+        env:
+          CLOUDFLARED_VERSION: '2026.9.1'
         run: |
-          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          curl -fsSL --retry 3 --output cloudflared.deb \
+            "https://github.com/cloudflare/cloudflared/releases/download/${CLOUDFLARED_VERSION}/cloudflared-linux-amd64.deb"
           sudo dpkg -i cloudflared.deb
 
       - name: Configure SSH
@@ -37,7 +43,9 @@ jobs:
       - name: Deploy Files & Update Secrets
         run: |
           # 1. SSH into NAS
-          # 2. Create the .env file with ALL secrets (Tunnel + DB)
+          # 2. Create the .env file with ALL secrets (Tunnel + DB), owner-only:
+          #    it holds the DB password, Django secret key and tunnel token, so it
+          #    must not be readable by other accounts on the host.
           # 3. Pull code and restart
 
           # Bring up the app services ONLY. `docker compose up -d` with no
@@ -47,10 +55,12 @@ jobs:
           # having actually succeeded. cloudflared is left running; restart it by
           # hand on the rare occasion its own config changes.
           ssh nas "cd /volume2/docker/moneda-bio && \
+          umask 077 && \
           printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
+          chmod 600 .env && \
           git fetch origin main && \
           git reset --hard origin/main && \
-          docker compose up -d db backend frontend"
+          docker compose up -d --build db backend frontend"
 
   # Post-deploy smoke test against the live production site.
   # Runs only if deploy succeeded. A failure here alerts (red X) but cannot

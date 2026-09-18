@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. THE DATABASE
   db:
@@ -18,11 +16,22 @@ services:
   backend:
     build: ./backend
     container_name: bio-backend
-    command: python manage.py runserver 0.0.0.0:8000
+    # `manage.py runserver` is a development server and was never meant to
+    # face the internet. gunicorn was already in requirements.txt, unused.
+    # collectstatic is required because WhiteNoise uses the manifest storage;
+    # migrate keeps a deploy self-sufficient (single instance, so no race).
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --access-logfile - --error-logfile -"
     volumes:
-      - ./backend:/app
-    ports:
-      - "8000:8000"
+      # Only the upload directory is mounted. Application code now comes from
+      # the image (the deploy rebuilds it), so the running container cannot
+      # modify the source checkout, and only MEDIA_ROOT needs to persist
+      # across container recreates.
+      - ./backend/media:/app/media
+    # No host port published: the tunnel reaches this by container DNS, so
+    # publishing one would only widen LAN exposure.
     depends_on:
       - db
     environment:
@@ -33,18 +42,17 @@ services:
       CSRF_TRUSTED_ORIGINS: 'https://guimoneda.com,https://www.guimoneda.com'
     restart: unless-stopped
 
-  # 3. THE FRONTEND (React/Node)
+  # 3. THE FRONTEND (compiled SPA behind nginx)
   frontend:
-    image: node:20-slim   # Debian/glibc — the Alpine/musl build segfaults on this NAS
+    # Built from frontend/Dockerfile: compiled once at image build time and
+    # served by nginx. Previously this mounted the source and ran the webpack
+    # dev server plus a type-checker in production, which exhausted memory on
+    # the NAS and crash-looped the site. Nothing compiles at runtime now.
+    build: ./frontend
     container_name: bio-frontend
-    working_dir: /app
-    environment:
-      WDS_SOCKET_PORT: "0"
-    volumes:
-      - ./frontend:/app
-    command: sh -c "npm install && npm start"
-    ports:
-      - "3000:3000"
+    # No host port and no source mount: the tunnel reaches this by container
+    # DNS (http://bio-frontend:3000), which is also the ingress rule already
+    # configured in Cloudflare, so that needs no change.
     restart: unless-stopped
 
 
