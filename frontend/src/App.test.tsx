@@ -56,6 +56,23 @@ test('renders the hero with a single accessible heading', async () => {
   expect(heading).toHaveTextContent(/Moneda/);
 });
 
+test("the h1's accessible name carries the full name and role", async () => {
+  render(<App />);
+  // Matches on the accessible NAME rather than textContent, since the headline
+  // is assembled from per-character spans hidden from assistive technology.
+  //
+  // This guards the name itself — that splitting the headline into glyphs never
+  // leaves the h1 announcing something partial. It does not pin the mechanism:
+  // both a visually-hidden text node and an `aria-label` compute the same name
+  // here and in Chromium. SplitText uses the text node because ARIA prohibits
+  // `aria-label` on generic roles, so its support is not guaranteed elsewhere.
+  const heading = await screen.findByRole('heading', {
+    level: 1,
+    name: /Guilherme\s+Moneda.*Senior QA Engineer/i,
+  });
+  expect(heading).toBeInTheDocument();
+});
+
 test('primary calls to action point at the experience page and mailbox', async () => {
   render(<App />);
   await screen.findByTestId('job-index');
