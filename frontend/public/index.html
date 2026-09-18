@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-    <title>Moneda — Senior QA Engineer</title>
+    <title>Moneda &mdash; Senior QA Engineer</title>
     <meta
       name="description"
       content="Guilherme Moneda. Senior QA Engineer. Eight years building test automation frameworks for web, mobile and microservice architectures."
@@ -15,7 +15,7 @@
     <meta name="theme-color" content="#0B0B0C" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#EFEBE2" media="(prefers-color-scheme: light)" />
 
-    <meta property="og:title" content="Moneda — Senior QA Engineer" />
+    <meta property="og:title" content="Moneda &mdash; Senior QA Engineer" />
     <meta property="og:description" content="Eight years building test automation frameworks for web, mobile and microservice architectures." />
     <meta property="og:url" content="https://guimoneda.com/" />
     <meta property="og:type" content="website" />
@@ -28,23 +28,7 @@
       rel="stylesheet"
     />
 
-    <script>
-      // Resolve the colour scheme before first paint so the page never flashes.
-      (function () {
-        try {
-          var stored = localStorage.getItem('moneda-theme');
-          var theme =
-            stored === 'ink' || stored === 'paper'
-              ? stored
-              : window.matchMedia('(prefers-color-scheme: light)').matches
-              ? 'paper'
-              : 'ink';
-          document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {
-          /* private mode / blocked storage — the `ink` default in the markup stands */
-        }
-      })();
-    </script>
+    <script src="%PUBLIC_URL%/theme-init.js"></script>
   </head>
 
   <body>
