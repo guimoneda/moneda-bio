@@ -2,8 +2,14 @@ import React, { useEffect, useState } from 'react';
 import SocialLinks from './SocialLinks';
 import Reveal from './Reveal';
 
+/**
+ * The one place the owner's location is declared. An IANA zone, not a fixed
+ * offset, so daylight saving is handled for us.
+ */
+const OWNER_TIME_ZONE = 'America/New_York';
+
 /** Local time in the owner's zone — a small live signal that the site is tended. */
-const useClock = (): string => {
+const useClock = (): { time: string; zone: string } => {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -11,15 +17,29 @@ const useClock = (): string => {
     return () => window.clearInterval(id);
   }, []);
 
-  return now.toLocaleTimeString('en-GB', {
+  const parts = new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    timeZone: 'America/Sao_Paulo',
-  });
+    // h23 rather than hour12:false: the latter renders midnight as 24:00 in
+    // some implementations. en-US resolves the zone to a real abbreviation
+    // (EDT/EST); en-GB would render it as a GMT offset instead.
+    hourCycle: 'h23',
+    timeZone: OWNER_TIME_ZONE,
+    // Derived, never written down: hard-coding an abbreviation puts it one
+    // daylight-saving change away from lying.
+    timeZoneName: 'short',
+  }).formatToParts(now);
+
+  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+
+  return {
+    time: `${value('hour')}:${value('minute')}`,
+    zone: value('timeZoneName'),
+  };
 };
 
 const Footer: React.FC = () => {
-  const clock = useClock();
+  const { time, zone } = useClock();
 
   return (
     <footer className="mt-24 border-t border-rule/15">
@@ -65,7 +85,7 @@ const Footer: React.FC = () => {
               <div className="flex justify-between border-b border-rule/15 py-3">
                 <dt className="text-mute">Local time</dt>
                 <dd className="text-ink">
-                  {clock} <span className="text-mute">BRT</span>
+                  {time} <span className="text-mute">{zone}</span>
                 </dd>
               </div>
             </dl>
