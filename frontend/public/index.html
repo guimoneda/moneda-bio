@@ -1,30 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="ink">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    
-    <meta
-      name="description"
-      content= "Tech Lead & Home Lab Enthusiast. View my projects and professional history."
-    />
-    <title>Moneda | Digital Transformation Leader</title>
-
-    <meta property="og:title" content="<Moneda/> | Senior QA Engineer" />
-    <meta property="og:description" content="Building Robust, and scalable automation frameworks." />
-    <meta property="og:url" content="https://guimoneda.com/" />
-    <meta property="og:type" content="website" />
-
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <title>Moneda — Senior QA Engineer</title>
+    <meta
+      name="description"
+      content="Guilherme Moneda. Senior QA Engineer. Eight years building test automation frameworks for web, mobile and microservice architectures."
+    />
+    <meta name="theme-color" content="#0B0B0C" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#EFEBE2" media="(prefers-color-scheme: light)" />
+
+    <meta property="og:title" content="Moneda — Senior QA Engineer" />
+    <meta property="og:description" content="Eight years building test automation frameworks for web, mobile and microservice architectures." />
+    <meta property="og:url" content="https://guimoneda.com/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Inter+Tight:ital,wght@0,300..700;1,400..600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      // Resolve the colour scheme before first paint so the page never flashes.
+      (function () {
+        try {
+          var stored = localStorage.getItem('moneda-theme');
+          var theme =
+            stored === 'ink' || stored === 'paper'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'paper'
+              : 'ink';
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          /* private mode / blocked storage — the `ink` default in the markup stands */
+        }
+      })();
+    </script>
   </head>
-  
+
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    
     <div id="root"></div>
-    
   </body>
 </html>

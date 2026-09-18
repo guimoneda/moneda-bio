@@ -5,25 +5,35 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Frontend UI Element Tests', () => {
   test('Hero section content and CTAs', async ({ page }) => {
-    // 1. Load https://guimoneda.com/ and locate hero section
-    await page.goto('https://guimoneda.com/');
+    await page.goto('/');
 
-    // 2. Keyboard activation of CTAs
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Enter');
+    const hero = page.getByTestId('hero');
+    await expect(hero).toBeVisible();
 
-    // Assertions for expectations
-    await expect(page.locator('h1')).toContainText("Hi, I'm Moneda");
+    await expect(page.locator('h1')).toContainText('Guilherme');
+    await expect(page.locator('h1')).toContainText('Moneda');
     await expect(page.locator('h1')).toContainText('Senior QA Engineer');
-    await expect(page.locator('p').first()).toContainText('years');
-    await expect(page.locator('p').first()).toContainText('Selenium');
-    await expect(page.locator('a:has-text("View My Work")')).toHaveAttribute('href', '/jobs');
-    await expect(page.locator('a:has-text("Contact Me")')).toHaveAttribute('href', 'mailto:contact@guimoneda.com');
-    // Note: Keyboard reachability and activation verified via presses; mailto handled non-destructively in test env.
+
+    const statement = hero.locator('p').filter({ hasText: 'Selenium' });
+    await expect(statement).toContainText('years');
+    await expect(statement).toContainText('Selenium');
+
+    await expect(page.getByRole('link', { name: 'View My Work' })).toHaveAttribute('href', '/jobs');
+    await expect(page.getByRole('link', { name: 'Contact Me' })).toHaveAttribute(
+      'href',
+      'mailto:contact@guimoneda.com'
+    );
+  });
+
+  test('Hero figures are derived from the API, not hard-coded', async ({ page }) => {
+    const jobs = await page.request.get('/api/jobs/').then((r) => r.json());
+    const technologies = new Set<string>(
+      jobs.flatMap((job: { technologies?: string[] }) => job.technologies ?? [])
+    );
+
+    await page.goto('/');
+    const hero = page.getByTestId('hero');
+    await expect(hero.getByText('Roles held').locator('..')).toContainText(String(jobs.length));
+    await expect(hero.getByText('Technologies').locator('..')).toContainText(String(technologies.size));
   });
 });

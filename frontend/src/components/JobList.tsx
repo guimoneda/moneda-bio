@@ -1,176 +1,316 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react'; 
-
-interface Job {
-  id: number;
-  title: string;
-  company: string;
-  description: string;
-  more_details?: string;
-  technologies: string[];
-  start_date: string;
-  duration?: string;
-  image?: string; 
-  image_url?: string; 
-}
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useMotionValue, useSpring } from 'motion/react';
+import RichText from './RichText';
+import { useReducedMotion } from '../hooks/useReducedMotion';
+import { useResource } from '../hooks/useResource';
+import { byNewest, Job } from '../lib/jobs';
+import { pad, range } from '../lib/format';
 
 interface JobListProps {
   limit?: number;
 }
 
-const JobList: React.FC<JobListProps> = ({ limit }) => {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+const jobImage = (job: Job): string | null => job.image || job.image_url || null;
 
-  useEffect(() => {
-    fetch('/api/jobs/')
-      .then((res) => res.json())
-      .then((data: Job[]) => {
-        const sortedJobs = data.sort((a, b) => 
-          new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
-        );
-        setJobs(sortedJobs);
-      })
-      .catch((err) => console.error(err));
+/**
+ * Experience, set as a numbered index rather than a grid of cards.
+ *
+ * Hovering a row moves a preview panel that tracks the cursor (pointer-fine
+ * devices only); clicking morphs the row itself into the detail panel through
+ * the shared `layoutId` pairing, which is preserved from the original design.
+ */
+const JobList: React.FC<JobListProps> = ({ limit }) => {
+  const reduced = useReducedMotion();
+  const state = useResource<Job[]>('/api/jobs/');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const lastFocused = useRef<HTMLElement | null>(null);
+
+  // Cursor-tracked preview. Springs keep it trailing the pointer with weight.
+  const pointerY = useMotionValue(0);
+  const previewY = useSpring(pointerY, { stiffness: 380, damping: 40, mass: 0.6 });
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.pointerType !== 'mouse') return;
+      const bounds = e.currentTarget.getBoundingClientRect();
+      pointerY.set(e.clientY - bounds.top);
+    },
+    [pointerY]
+  );
+
+  const open = (job: Job, e: React.MouseEvent) => {
+    lastFocused.current = e.currentTarget as HTMLElement;
+    setSelectedId(job.id);
+    setHoveredId(null);
+  };
+
+  const close = useCallback(() => {
+    setSelectedId(null);
+    lastFocused.current?.focus();
   }, []);
 
-  const getJobImage = (job: Job) => {
-    if (job.image) return job.image; 
-    if (job.image_url) return job.image_url;
-    return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
+  // Escape to dismiss, scroll locked while open, focus handed to the panel.
+  useEffect(() => {
+    if (selectedId === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    const timer = window.setTimeout(() => closeRef.current?.focus(), 60);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener('keydown', onKey);
+      window.clearTimeout(timer);
+    };
+  }, [selectedId, close]);
+
+  if (state.status === 'loading') {
+    return (
+      <ul className="border-t border-rule/15" data-testid="job-index-loading" aria-busy="true">
+        {Array.from({ length: limit ?? 4 }).map((_, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <li key={i} className="flex items-center gap-6 border-b border-rule/15 py-8">
+            <span className="h-3 w-6 animate-pulse bg-rule/10" />
+            <span className="h-7 w-2/5 animate-pulse bg-rule/10" />
+            <span className="ml-auto h-3 w-24 animate-pulse bg-rule/10" />
+          </li>
+        ))}
+        <li className="sr-only">Loading experience…</li>
+      </ul>
+    );
   }
 
-  const displayedJobs = limit ? jobs.slice(0, limit) : jobs;
+  if (state.status === 'error') {
+    return (
+      <div className="border-y border-rule/15 py-12" role="alert" data-testid="job-index-error">
+        <p className="label text-signal">Experience unavailable</p>
+        <p className="mt-3 max-w-prose text-mute">
+          The history could not be loaded ({state.error}). Everything else on this page still works —
+          try a refresh.
+        </p>
+      </div>
+    );
+  }
+
+  const jobs = byNewest(state.data);
+  const displayed = limit ? jobs.slice(0, limit) : jobs;
+  const selected = selectedId === null ? null : jobs.find((job) => job.id === selectedId) ?? null;
+  const hovered = hoveredId === null ? null : displayed.find((job) => job.id === hoveredId) ?? null;
 
   return (
-    <div className="relative"> 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {displayedJobs.map((job) => (
-          <motion.div
-            layoutId={`card-${job.id}`} 
+    <div className="relative" onPointerMove={onPointerMove} data-testid="job-index">
+      <ol className="border-t border-rule/15">
+        {displayed.map((job, i) => (
+          <motion.li
+            layoutId={`card-${job.id}`}
             key={job.id}
-            onClick={() => setSelectedId(job.id)}
-            // CHANGED: Fixed height to 280px (landscape card) and added hover border effect
-            className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 cursor-pointer relative group flex flex-col h-[280px] hover:border-indigo-500/50 transition-colors"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            data-testid="job-row"
+            className="group relative border-b border-rule/15"
+            onMouseEnter={() => setHoveredId(job.id)}
+            onMouseLeave={() => setHoveredId((id) => (id === job.id ? null : id))}
           >
-            {/* Background Image: Reduced opacity for better text readability */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center opacity-10 group-hover:opacity-30 transition-opacity duration-500"
-              style={{ backgroundImage: `url(${getJobImage(job)})` }} 
+            {/* Hover fill sweeps down from the rule above. */}
+            <span
+              className="pointer-events-none absolute inset-0 origin-top scale-y-0 bg-panel transition-transform duration-500 ease-instrument group-hover:scale-y-100"
+              aria-hidden="true"
             />
-            
-            {/* CHANGED: Reduced padding to p-5 to fit the smaller card */}
-            <div className="p-5 relative z-10 flex flex-col flex-grow">
-              <motion.h3 className="text-xl font-bold text-white leading-tight">{job.title}</motion.h3>
-              
-              <div className="flex justify-between items-start mb-2 mt-1">
-                <motion.p className="text-indigo-400 text-sm font-medium">{job.company}</motion.p>
-                {job.duration && (
-                  <span className="text-xs font-mono text-gray-400 bg-gray-900/60 px-2 py-0.5 rounded border border-gray-700/50 whitespace-nowrap ml-2">
-                    {job.duration}
+
+            <button
+              type="button"
+              onClick={(e) => open(job, e)}
+              aria-label={`${job.title} at ${job.company} — open details`}
+              className="relative flex w-full flex-col gap-3 px-1 py-7 text-left sm:px-2 md:grid md:grid-cols-12 md:items-baseline md:gap-6 md:py-9"
+            >
+              <span className="label col-span-1 text-signal/70 transition-colors duration-300 group-hover:text-signal">
+                {pad(i + 1)}
+              </span>
+
+              <span className="col-span-6 block">
+                <h3 className="block font-display text-display-sm font-semibold text-ink transition-transform duration-500 ease-instrument md:group-hover:translate-x-2">
+                  {job.title}
+                </h3>
+                {job.technologies?.length > 0 && (
+                  <span className="mt-2 hidden flex-wrap gap-x-3 gap-y-1 lg:flex">
+                    {job.technologies.slice(0, 4).map((tech) => (
+                      <span key={tech} className="font-mono text-[0.7rem] text-mute/70">
+                        {tech}
+                      </span>
+                    ))}
+                    {job.technologies.length > 4 && (
+                      <span className="font-mono text-[0.7rem] text-mute/50">
+                        +{job.technologies.length - 4}
+                      </span>
+                    )}
                   </span>
                 )}
-              </div>
-              
-              {/* CHANGED: line-clamp-3 ensures text doesn't overflow the shorter card */}
-              <div 
-                className="text-gray-400 text-sm line-clamp-3 mb-4 [&_p]:mb-1 [&_p]:inline-block"
-                dangerouslySetInnerHTML={{ __html: job.description }}
-              />
+              </span>
 
-              <div className="flex flex-wrap gap-2 mt-auto">
-                {job.technologies && job.technologies.slice(0, 3).map((tech, index) => (
-                   <span key={index} className="px-2 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded-md">
-                     {tech}
-                   </span>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+              <span className="col-span-3 block font-mono text-meta uppercase text-mute">
+                {job.company}
+              </span>
+
+              <span className="col-span-2 flex items-baseline justify-between gap-4 font-mono text-meta text-mute md:justify-end">
+                {range(job.start_date, job.end_date)}
+                <span
+                  className="text-signal opacity-0 transition-all duration-500 ease-instrument group-hover:translate-x-1 group-hover:opacity-100"
+                  aria-hidden="true"
+                >
+                  &#8594;
+                </span>
+              </span>
+            </button>
+          </motion.li>
         ))}
-      </div>
+      </ol>
+
+      {/*
+        Row preview. It tracks the pointer vertically but is anchored horizontally
+        in the empty band between the title and company columns, so it never
+        covers the role name it is describing. Decorative, fine pointers only.
+      */}
+      {!reduced && (
+        <AnimatePresence>
+          {hovered && (
+            <motion.div
+              key={hovered.id}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              style={{ y: previewY }}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[47%] top-0 z-30 hidden h-36 w-48 -translate-x-1/2 -translate-y-1/2 overflow-hidden border border-rule/20 bg-panel-hi [@media(pointer:fine)]:block"
+            >
+              {jobImage(hovered) ? (
+                <img
+                  src={jobImage(hovered) as string}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover opacity-70 grayscale"
+                />
+              ) : (
+                // No stock photography. Absent an image the company sets its own tile,
+                // drawn in the system's own vocabulary rather than as a colour block.
+                <span className="relative flex h-full w-full items-center justify-center">
+                  <span className="text-outline font-display text-4xl font-bold uppercase tracking-tight">
+                    {hovered.company.slice(0, 3)}
+                  </span>
+                  <span className="absolute bottom-3 left-3 h-1.5 w-1.5 bg-signal" />
+                  <span className="absolute bottom-3 right-3 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-mute">
+                    {hovered.company}
+                  </span>
+                </span>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
 
       <AnimatePresence>
-        {selectedId && (
+        {selected && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedId(null)}
-              className="fixed inset-0 bg-black/80 z-40 backdrop-blur-sm"
+              transition={{ duration: 0.3 }}
+              onClick={close}
+              data-testid="job-backdrop"
+              className="fixed inset-0 z-[60] bg-canvas/80 backdrop-blur-md"
             />
 
-            <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
+            <div className="pointer-events-none fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto p-4 py-10 sm:p-8 sm:py-16">
               <motion.div
-                layoutId={`card-${selectedId}`} 
-                className="bg-gray-900 w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl shadow-2xl border border-gray-700 pointer-events-auto"
+                layoutId={`card-${selected.id}`}
+                role="dialog"
+                aria-modal="true"
+                aria-label={`${selected.title} at ${selected.company}`}
+                data-testid="job-detail"
+                className="pointer-events-auto w-full max-w-3xl border border-rule/20 bg-canvas"
               >
-                {(() => {
-                  const job = jobs.find(j => j.id === selectedId);
-                  if (!job) return null;
-                  
-                  return (
-                    <div className="relative">
-                      <button 
-                          onClick={() => setSelectedId(null)}
-                          className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
+                <div className="flex items-center justify-between border-b border-rule/15 px-6 py-3 sm:px-8">
+                  <span className="label text-signal">{selected.company}</span>
+                  <button
+                    ref={closeRef}
+                    type="button"
+                    onClick={close}
+                    aria-label="Close details"
+                    data-testid="job-detail-close"
+                    className="-mr-2 flex h-9 w-9 items-center justify-center text-mute transition-colors hover:text-signal"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
 
-                      <div 
-                        className="h-64 bg-cover bg-center relative"
-                        style={{ backgroundImage: `url(${getJobImage(job)})` }}
-                      >
-                          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
-                      </div>
+                <div className="px-6 py-8 sm:px-8 sm:py-10">
+                  <h3 className="text-display-md font-semibold text-ink">{selected.title}</h3>
 
-                      <div className="p-8">
-                        <motion.h3 className="text-3xl font-bold text-white mb-2">{job.title}</motion.h3>
-                        
-                        <div className="flex items-center gap-4 mb-6">
-                            <motion.p className="text-indigo-400 text-lg font-medium">{job.company}</motion.p>
-                            {job.duration && (
-                                <span className="text-sm font-mono text-gray-300 bg-gray-800 px-3 py-1 rounded-full border border-gray-600">
-                                    {job.duration}
-                                </span>
-                            )}
-                        </div>
-                        
-                        <motion.div 
-                          initial={{ opacity: 0 }} 
-                          animate={{ opacity: 1 }} 
-                          transition={{ delay: 0.2 }}
-                          className="text-gray-300 leading-relaxed text-lg" 
-                        >
-                          <div 
-                            className="[&_p]:mb-4 [&_b]:font-bold [&_strong]:font-bold [&_strong]:text-white"
-                            // Concatenation Logic: Combines short + long description
-                            dangerouslySetInnerHTML={{ 
-                              __html: job.description + (job.more_details ? `<br/><br/>${job.more_details}` : '') 
-                            }} 
-                          />
-                        </motion.div>
-
-                        <div className="mt-8 pt-6 border-t border-gray-700">
-                           <h4 className="text-gray-400 text-sm uppercase tracking-wider mb-3">Technologies</h4>
-                           <div className="flex flex-wrap gap-2">
-                             {job.technologies && job.technologies.map((tech, index) => (
-                               <span key={index} className="px-3 py-1.5 text-sm font-medium bg-gray-700 text-gray-300 rounded-md">
-                                 {tech}
-                               </span>
-                             ))}
-                           </div>
-                        </div>
-                      </div>
+                  <dl className="mt-6 grid grid-cols-2 border-y border-rule/15 sm:grid-cols-3">
+                    <div className="border-r border-rule/15 py-4 pr-4">
+                      <dt className="label block">Period</dt>
+                      <dd className="mt-1.5 font-mono text-sm text-ink">
+                        {range(selected.start_date, selected.end_date)}
+                      </dd>
                     </div>
-                  );
-                })()}
+                    <div className="py-4 pl-4 sm:border-r sm:border-rule/15 sm:pr-4">
+                      <dt className="label block">Duration</dt>
+                      <dd className="mt-1.5 font-mono text-sm text-ink">{selected.duration || '—'}</dd>
+                    </div>
+                    <div className="col-span-2 border-t border-rule/15 py-4 sm:col-span-1 sm:border-t-0 sm:pl-4">
+                      <dt className="label block">Status</dt>
+                      <dd
+                        className={`mt-1.5 font-mono text-sm ${
+                          selected.is_current ? 'text-signal' : 'text-ink'
+                        }`}
+                      >
+                        {selected.is_current ? 'Current' : 'Completed'}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <motion.div
+                    initial={reduced ? undefined : { opacity: 0, y: 10 }}
+                    animate={reduced ? undefined : { opacity: 1, y: 0 }}
+                    transition={{ delay: 0.18, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="mt-8"
+                  >
+                    <RichText html={selected.description} className="text-base" />
+                    {selected.more_details && (
+                      <RichText html={selected.more_details} className="mt-6 text-base" />
+                    )}
+                  </motion.div>
+
+                  {selected.technologies?.length > 0 && (
+                    <div className="mt-10 border-t border-rule/15 pt-6">
+                      <h4 className="label mb-4">Stack</h4>
+                      <ul className="flex flex-wrap gap-2">
+                        {selected.technologies.map((tech) => (
+                          <li
+                            key={tech}
+                            className="border border-rule/20 px-3 py-1.5 font-mono text-[0.72rem] uppercase tracking-wider text-mute"
+                          >
+                            {tech}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </motion.div>
             </div>
           </>

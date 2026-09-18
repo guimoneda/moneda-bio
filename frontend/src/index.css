@@ -2,7 +2,197 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #111827; /* Dark mode background */
-  color: white;
+/*
+  ── Instrument ────────────────────────────────────────────────────────────────
+  A technical-editorial system: ink on bone, hairline rules, one accent.
+  Two themes, identical token names. Values are "R G B" triples so Tailwind can
+  apply its own alpha (`border-rule/25`, `text-ink/60`, …).
+*/
+
+:root,
+:root[data-theme='ink'] {
+  --canvas: 11 11 12;
+  --panel: 18 18 19;
+  --panel-hi: 27 27 28;
+  --ink: 237 233 225;
+  --mute: 139 134 124;
+  --rule: 237 233 225;
+  --signal: 255 74 31;
+  --signal-ink: 11 11 12;
+  --grain-opacity: 0.05;
+  color-scheme: dark;
+}
+
+:root[data-theme='paper'] {
+  --canvas: 239 235 226;
+  --panel: 231 226 215;
+  --panel-hi: 222 216 203;
+  --ink: 20 20 19;
+  --mute: 106 102 94;
+  --rule: 20 20 19;
+  --signal: 194 50 9;
+  --signal-ink: 255 247 242;
+  --grain-opacity: 0.035;
+  color-scheme: light;
+}
+
+@layer base {
+  * {
+    @apply border-rule;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    /* Theme switching should feel like a dimmer, not a cut. */
+    transition: background-color 400ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Film grain. Kills the flat vector-gradient look that dark sites default to. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    @apply bg-signal text-signal-ink;
+  }
+
+  /* Visible only for keyboard users, and it uses the accent so it reads as intent. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--signal));
+    outline-offset: 3px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    font-variation-settings: 'wdth' 100;
+  }
+
+  /* Tabular figures everywhere numbers are compared down a column. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--canvas));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--rule) / 0.2);
+    border: 3px solid rgb(var(--canvas));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--signal) / 0.7);
+  }
+}
+
+@layer components {
+  /* Monospace metadata labels — the spec-sheet voice of the system. */
+  .label {
+    @apply font-mono text-label uppercase text-mute;
+  }
+
+  /* Edge-to-edge hairline used to separate every band of the page. */
+  .rule-y {
+    @apply border-t border-rule/15;
+  }
+
+  /*
+    Rich text arriving from CKEditor. The API stores HTML, so it needs a
+    typographic contract of its own rather than inheriting whatever is nearby.
+  */
+  .rich {
+    @apply text-[0.975rem] leading-[1.7] text-mute;
+  }
+  .rich > * + * {
+    @apply mt-4;
+  }
+  .rich strong,
+  .rich b {
+    @apply font-semibold text-ink;
+  }
+  .rich em,
+  .rich i {
+    @apply italic;
+  }
+  .rich a {
+    @apply text-signal underline decoration-signal/40 underline-offset-4 transition-colors hover:decoration-signal;
+  }
+  .rich ul,
+  .rich ol {
+    @apply space-y-2 pl-0;
+  }
+  .rich li {
+    @apply relative list-none pl-6;
+  }
+  .rich ul > li::before {
+    content: '';
+    @apply absolute left-0 top-[0.7em] h-px w-3 bg-signal;
+  }
+  .rich ol {
+    counter-reset: rich-list;
+  }
+  .rich ol > li {
+    counter-increment: rich-list;
+  }
+  .rich ol > li::before {
+    content: counter(rich-list, decimal-leading-zero);
+    @apply absolute left-0 top-[0.15em] font-mono text-[0.7rem] text-signal;
+  }
+  .rich h1,
+  .rich h2,
+  .rich h3,
+  .rich h4 {
+    @apply mt-8 font-display text-display-sm text-ink;
+  }
+  .rich p:empty {
+    display: none;
+  }
+
+  /* Outlined display type. Used once, on the second hero line. */
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(var(--ink) / 0.55);
+  }
+  @supports not (-webkit-text-stroke: 1px black) {
+    .text-outline {
+      color: rgb(var(--ink) / 0.55);
+    }
+  }
+}
+
+/*
+  Reduced motion is honoured globally as a backstop; individual components also
+  branch on it so they render a considered static state rather than a frozen one.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

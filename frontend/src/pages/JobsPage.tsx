@@ -1,42 +1,34 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
 import JobList from '../components/JobList';
 import EducationList from '../components/EducationList';
 import CertificationList from '../components/CertificationList';
+import SectionHeading from '../components/SectionHeading';
 
-const JobsPage = () => {
-  return (
-    <div className="min-h-screen bg-gray-900">
-      <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-16"> {/* Added space-y-16 for separation */}
-        
-        {/* SECTION 1: JOBS */}
-        <div>
-          <h1 className="text-4xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">
-            Professional Experience
-          </h1>
-          <JobList />
-        </div>
+const JobsPage: React.FC = () => (
+  <div className="mx-auto max-w-shell px-6 pb-16 pt-32 sm:px-8 sm:pt-40">
+    <p className="label mb-6">Curriculum / full record</p>
 
-        {/* SECTION 2: EDUCATION */}
-        <div>
-          <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">
-            Education
-          </h2>
-          <EducationList />
-        </div>
-
-        <div>
-          <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">
-            Certifications
-          </h2>
-          <CertificationList />
-        </div>
-
+    <section className="pb-20 sm:pb-28">
+      <SectionHeading as="h1" index="01" title="Professional Experience" meta="Click a row for detail" />
+      <div className="mt-12">
+        <JobList />
       </div>
-    </div>
-  );
-};
+    </section>
+
+    <section className="pb-20 sm:pb-28">
+      <SectionHeading index="02" title="Education" />
+      <div className="mt-12">
+        <EducationList />
+      </div>
+    </section>
+
+    <section>
+      <SectionHeading index="03" title="Certifications" />
+      <div className="mt-12">
+        <CertificationList />
+      </div>
+    </section>
+  </div>
+);
 
 export default JobsPage;

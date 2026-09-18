@@ -2,27 +2,30 @@
 
 import { test, expect } from '@playwright/test';
 
-test.describe('Homepage job card modal', () => {
-  test('Job card click opens and closes modal overlay', async ({ page }) => {
+test.describe('Homepage job detail', () => {
+  test('Row click opens the detail panel and returns focus on close', async ({ page }) => {
     await page.goto('/');
-    // Wait for API data to fully load before interacting
     await page.waitForLoadState('networkidle');
 
-    // Click the first card container (not inner text) to avoid animation timing issues
-    const firstCard = page.locator('.bg-gray-800.rounded-xl.cursor-pointer').first();
-    await firstCard.click();
+    const trigger = page.getByTestId('job-row').first().getByRole('button');
+    await trigger.click();
 
-    // Allow Framer Motion animation to settle
-    const backdrop = page.locator('.fixed.inset-0.bg-black\\/80');
-    await expect(backdrop).toBeVisible({ timeout: 10000 });
+    const detail = page.getByTestId('job-detail');
+    await expect(detail).toBeVisible({ timeout: 10000 });
+    await expect(detail.locator('h3').first()).toBeVisible();
 
-    // Modal contains a job title
-    await expect(page.locator('.bg-gray-900.w-full.max-w-2xl h3').first()).toBeVisible();
+    // Closing hands focus back to the row that opened the panel, so keyboard
+    // users are not dropped at the top of the document.
+    await page.getByTestId('job-detail-close').click();
+    await expect(detail).toHaveCount(0, { timeout: 10000 });
+    await expect(trigger).toBeFocused();
+  });
 
-    // Close the modal via its close (X) button — deterministic. Clicking the
-    // backdrop is racy: it's full-screen, so a centered click lands on the modal
-    // card (pointer-events-auto) rather than the backdrop and never closes it.
-    await page.locator('.bg-gray-900.w-full.max-w-2xl button').first().click();
-    await expect(backdrop).not.toBeVisible({ timeout: 10000 });
+  test('Background scroll is locked while the detail panel is open', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('job-row').first().getByRole('button').click();
+    await expect(page.getByTestId('job-detail')).toBeVisible();
+
+    await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
   });
 });
