@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "company": "Northwind Systems",
+    "title": "Principal Quality Engineer",
+    "start_date": "2023-02-01",
+    "end_date": null,
+    "is_current": true,
+    "duration": "2 yrs, 7 mos",
+    "description": "<p>Fixture role. Owns the release quality gate for four squads.</p>",
+    "more_details": "<p>Fixture detail body.</p><ul><li>First fixture bullet.</li><li>Second fixture bullet.</li></ul>",
+    "technologies": ["Playwright", "Python", "Grafana", "SQL", "Terraform"],
+    "image": null,
+    "image_url": null
+  },
+  {
+    "id": 2,
+    "company": "Initech",
+    "title": "Senior Test Engineer",
+    "start_date": "2021-06-01",
+    "end_date": "2023-01-31",
+    "is_current": false,
+    "duration": "1 yr, 8 mos",
+    "description": "<p>Fixture role. Contract testing across client integrations.</p>",
+    "more_details": "<p>Fixture detail body.</p>",
+    "technologies": ["Kubernetes", "Postman", "Jenkins", "Docker"],
+    "image": null,
+    "image_url": null
+  },
+  {
+    "id": 3,
+    "company": "Globex",
+    "title": "Automation Engineer",
+    "start_date": "2019-03-01",
+    "end_date": "2021-05-31",
+    "is_current": false,
+    "duration": "2 yrs, 3 mos",
+    "description": "<p>Fixture role. Migrated a record-and-playback suite to page objects.</p>",
+    "more_details": null,
+    "technologies": ["Selenium", "Robot Framework", "Python", "GitLab CI"],
+    "image": null,
+    "image_url": null
+  },
+  {
+    "id": 4,
+    "company": "Umbrella Retail",
+    "title": "QA Analyst",
+    "start_date": "2017-08-01",
+    "end_date": "2019-02-28",
+    "is_current": false,
+    "duration": "1 yr, 7 mos",
+    "description": "<p>Fixture role. End-to-end suites for web and mobile.</p>",
+    "more_details": null,
+    "technologies": ["Appium", "Java", "TestNG"],
+    "image": null,
+    "image_url": null
+  }
+]

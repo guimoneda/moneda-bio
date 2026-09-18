@@ -25,9 +25,10 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('')`.
-       Override with BASE_URL to run the suite against a local build or a
-       preview deployment instead of production. */
+    /* Base URL for `page.goto('/')`.
+       Defaults to production so the post-deploy smoke job in
+       .github/workflows/docker-image.yml keeps verifying the live site.
+       CI sets BASE_URL + E2E_LOCAL to test the build in the branch instead. */
     baseURL: process.env.BASE_URL || 'https://guimoneda.com',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -72,10 +73,18 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  /* With E2E_LOCAL=1, serve the compiled frontend plus a stubbed API and test
+     that, so a pull request verifies its own code rather than whatever is
+     currently deployed. Left off by default: without it the suite targets
+     production, which is what the post-deploy smoke job wants. */
+  webServer: process.env.E2E_LOCAL === '1'
+    ? {
+        command: 'node scripts/e2e-server.js',
+        url: process.env.BASE_URL || 'http://127.0.0.1:4173',
+        reuseExistingServer: !process.env.CI,
+        timeout: 60_000,
+        stdout: 'pipe',
+        stderr: 'pipe',
+      }
+    : undefined,
 });
