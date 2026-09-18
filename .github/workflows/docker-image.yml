@@ -40,11 +40,17 @@ jobs:
           # 2. Create the .env file with ALL secrets (Tunnel + DB)
           # 3. Pull code and restart
 
+          # Bring up the app services ONLY. `docker compose up -d` with no
+          # arguments also recreates cloudflared -- which is the tunnel carrying
+          # this very SSH session. It SIGTERMs the transport mid-command, so the
+          # deploy severs its own connection and exits 255 ("Broken pipe") after
+          # having actually succeeded. cloudflared is left running; restart it by
+          # hand on the rare occasion its own config changes.
           ssh nas "cd /volume2/docker/moneda-bio && \
           printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
           git fetch origin main && \
           git reset --hard origin/main && \
-          docker compose up -d"
+          docker compose up -d db backend frontend"
 
   # Post-deploy smoke test against the live production site.
   # Runs only if deploy succeeded. A failure here alerts (red X) but cannot
