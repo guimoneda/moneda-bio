@@ -20,10 +20,14 @@ COPY . .
 
 # INLINE_RUNTIME_CHUNK=false keeps every byte of JS in an external file, so the
 # Content-Security-Policy in nginx.conf needs no script-src exception.
+# No NODE_OPTIONS heap cap here. An earlier --max-old-space-size=1024 was added
+# on a guess about "keeping the build in budget" and never measured; on a
+# memory-constrained host it is counterproductive, since it invites V8 to grow
+# to a gigabyte rather than sizing its heap from the container's actual limit,
+# which Node 20 reads on its own.
 ENV INLINE_RUNTIME_CHUNK=false \
     GENERATE_SOURCEMAP=false \
-    DISABLE_ESLINT_PLUGIN=true \
-    NODE_OPTIONS=--max-old-space-size=1024
+    DISABLE_ESLINT_PLUGIN=true
 
 RUN npm run build
 
