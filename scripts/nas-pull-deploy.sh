@@ -2,17 +2,17 @@
 #
 # Pull-based deploy, run on the NAS itself.
 #
-# The push-based path in .github/workflows/docker-image.yml requires GitHub to
-# reach into the house over a Cloudflare tunnel, which has proven to be the most
-# fragile part of the system: a healthy tunnel serving the site has still
-# refused the SSH hostname at the edge, and a deploy is blocked whenever that
-# happens. This inverts it. Nothing needs to reach in; the NAS asks GitHub
-# whether main has moved and acts on the answer.
+# This is the only deploy path. It replaced a GitHub Actions job that SSHed in
+# over the Cloudflare tunnel, which was the most fragile part of the system: a
+# healthy tunnel serving the site would still refuse the SSH hostname at the
+# edge, and a deploy was blocked whenever that happened. This inverts it.
+# Nothing needs to reach in; the NAS asks GitHub whether main has moved and acts
+# on the answer.
 #
-# It also keeps the secrets at home. The push deploy rewrites .env on every run,
-# piping the database password, Django secret key and tunnel token through a
-# GitHub Actions command line. Here .env is expected to already exist and is
-# never touched.
+# It also keeps the secrets at home. The old push deploy rewrote .env on every
+# run, piping the database password, Django secret key and tunnel token through
+# a GitHub Actions command line, so GitHub had to hold all of them. Here .env is
+# expected to already exist and is never touched.
 #
 # Safe to run on a short schedule: it exits immediately when the local checkout
 # already matches origin, and flock keeps two runs from overlapping.

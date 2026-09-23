@@ -90,11 +90,11 @@ Technical-editorial: ink on bone, hairline rules, one accent, no rounded corners
 
 ## Deploying
 
-Two paths exist. They do the same work and are safe to run side by side; the
-pull one does not depend on anything reaching into the network.
+One path: the NAS pulls. Nothing reaches into the network, and no deploy
+credential exists outside the house.
 
-**Pull (`scripts/nas-pull-deploy.sh`, run on the NAS).** Asks GitHub whether
-`main` has moved and acts on the answer. Install on a short schedule:
+**`scripts/nas-pull-deploy.sh`, run on the NAS.** Asks GitHub whether `main` has
+moved and acts on the answer. Install on a short schedule:
 
 ```bash
 */5 * * * * /volume2/docker/moneda-bio/scripts/nas-pull-deploy.sh
@@ -104,16 +104,27 @@ It exits silently when the checkout already matches origin, refuses to run if
 `.env` is missing (secrets stay on the NAS and are never written by a deploy),
 builds the images one at a time, leaves `cloudflared` alone, and fails if the
 frontend does not report healthy afterwards. `flock` prevents overlapping runs.
-Output goes to `.deploy.log` in the repository root, which is gitignored.
+It sets its own `PATH` and checks for `git`, `docker` and `flock` up front,
+because cron starts jobs with a near-empty environment. Output goes to
+`.deploy.log` in the repository root, which is gitignored.
 
-**Push (`.github/workflows/docker-image.yml`).** Fires on merge to `main` and
-SSHes in over the Cloudflare tunnel. Retries four times, because the tunnel
-intermittently refuses the SSH hostname at the edge even while serving the site
-normally.
+A push-based job used to exist alongside it (`.github/workflows/docker-image.yml`),
+SSHing in over the Cloudflare tunnel. It is gone. The tunnel intermittently
+refused the SSH hostname at the edge even while serving the site normally, and
+the job required GitHub to hold an SSH key, the NAS hostname and every
+production secret in order to rewrite `.env` on each run. Do not reintroduce it.
+`.github/workflows/smoke.yml` is what remains: it verifies the live site after a
+push to `main`, and deploys nothing.
 
-Neither path restarts `cloudflared`: recreating it drops the tunnel carrying the
-SSH session, which used to make a successful deploy report failure. Restart it
-by hand when its own configuration changes.
+Because the deploy is a cron, a merge to `main` is live within about five
+minutes rather than immediately. The smoke workflow waits that interval out on a
+timer; it does not read back which commit the NAS is serving, because the site
+exposes no build stamp.
+
+The deploy never restarts `cloudflared`: recreating it drops the tunnel, which
+used to make a successful deploy report failure. Restart it by hand when its own
+configuration changes — including after the image pin in `docker-compose.yml`
+is bumped.
 
 ## Key Conventions
 

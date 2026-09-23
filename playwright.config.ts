@@ -26,8 +26,8 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL for `page.goto('/')`.
-       Defaults to production so the post-deploy smoke job in
-       .github/workflows/docker-image.yml keeps verifying the live site.
+       Defaults to production so the smoke job in
+       .github/workflows/smoke.yml keeps verifying the live site.
        CI sets BASE_URL + E2E_LOCAL to test the build in the branch instead. */
     baseURL: process.env.BASE_URL || 'https://guimoneda.com',
 
