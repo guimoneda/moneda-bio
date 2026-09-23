@@ -66,7 +66,7 @@ const Navbar: React.FC = () => {
               <span className="font-display text-[1.05rem] font-semibold uppercase tracking-[0.12em] text-ink">
                 Moneda
               </span>
-              <span className="label hidden text-mute/70 sm:inline">QA&nbsp;ENG</span>
+              <span className="label hidden text-mute/70 sm:inline">DELIVERY</span>
             </span>
           </Link>
 

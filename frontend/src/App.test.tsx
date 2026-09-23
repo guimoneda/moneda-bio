@@ -68,7 +68,7 @@ test("the h1's accessible name carries the full name and role", async () => {
   // `aria-label` on generic roles, so its support is not guaranteed elsewhere.
   const heading = await screen.findByRole('heading', {
     level: 1,
-    name: /Guilherme\s+Moneda.*Senior QA Engineer/i,
+    name: /Guilherme\s+Moneda.*Technical delivery and incident response/i,
   });
   expect(heading).toBeInTheDocument();
 });

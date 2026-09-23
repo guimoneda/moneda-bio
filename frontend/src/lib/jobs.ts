@@ -22,9 +22,9 @@ export const byNewest = (jobs: Job[]): Job[] =>
  * they cannot drift out of date as roles are added through Django admin.
  */
 export interface DerivedStats {
-  years: number;
   roles: number;
   technologies: number;
+  /** Year of the earliest role. Stated as a fact rather than a duration. */
   since: string;
 }
 
@@ -39,7 +39,6 @@ export const deriveStats = (jobs: Job[]): DerivedStats | null => {
   const technologies = new Set(jobs.flatMap((job) => job.technologies ?? []));
 
   return {
-    years: Math.max(1, new Date().getFullYear() - startYear),
     roles: jobs.length,
     technologies: technologies.size,
     since: String(startYear),
