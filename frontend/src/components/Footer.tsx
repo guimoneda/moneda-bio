@@ -96,7 +96,7 @@ const Footer: React.FC = () => {
       <div className="border-t border-rule/15">
         <div className="mx-auto flex max-w-shell flex-wrap items-center justify-between gap-3 px-6 py-6 sm:px-8">
           <p className="label">&copy; 2026 Moneda. All rights reserved.</p>
-          <p className="label">Guilherme Moneda &mdash; Senior QA Engineer</p>
+          <p className="label">Guilherme Moneda &mdash; Delivery, Quality &amp; Operations</p>
         </div>
       </div>
     </footer>

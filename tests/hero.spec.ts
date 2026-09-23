@@ -12,11 +12,11 @@ test.describe('Frontend UI Element Tests', () => {
 
     await expect(page.locator('h1')).toContainText('Guilherme');
     await expect(page.locator('h1')).toContainText('Moneda');
-    await expect(page.locator('h1')).toContainText('Senior QA Engineer');
+    await expect(page.locator('h1')).toContainText('Technical delivery and incident response');
 
-    const statement = hero.locator('p').filter({ hasText: 'Selenium' });
+    const statement = hero.locator('p').filter({ hasText: 'Service delivery' });
     await expect(statement).toContainText('years');
-    await expect(statement).toContainText('Selenium');
+    await expect(statement).toContainText('Sev1');
 
     await expect(page.getByRole('link', { name: 'View My Work' })).toHaveAttribute('href', '/jobs');
     await expect(page.getByRole('link', { name: 'Contact Me' })).toHaveAttribute(
@@ -35,5 +35,17 @@ test.describe('Frontend UI Element Tests', () => {
     const hero = page.getByTestId('hero');
     await expect(hero.getByText('Roles held').locator('..')).toContainText(String(jobs.length));
     await expect(hero.getByText('Technologies').locator('..')).toContainText(String(technologies.size));
+
+    // The years figure is deliberately absent: derived from the earliest role
+    // it disagrees with the "9+ years" the resume claims, and the page must not
+    // contradict the CV it accompanies. `Since` states the year instead.
+    const earliest = jobs
+      .map((job: { start_date: string }) => job.start_date)
+      .sort()[0]
+      .slice(0, 4);
+    // Scoped to the stats list: "Since" also labels a cell in the instrument
+    // panel, and both render the same derived year.
+    const stats = hero.locator('dl');
+    await expect(stats.getByText('Since', { exact: true }).locator('..')).toContainText(earliest);
   });
 });

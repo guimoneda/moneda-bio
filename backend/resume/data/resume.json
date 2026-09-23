@@ -1,0 +1,77 @@
+{
+  "_comment": "Source of truth for the resume records, applied by `manage.py sync_resume`. Contact details beyond the public email are deliberately excluded: this file is committed to a public repository.",
+  "jobs": [
+    {
+      "company": "Independent / Freelance",
+      "title": "QA & Automation Consultant",
+      "start_date": "2024-01-01",
+      "end_date": null,
+      "is_current": true,
+      "description": "<p>Freelance QA and test automation engagements covering test strategy, framework design, defect analysis and release readiness for client applications.</p>",
+      "more_details": "<ul><li>Build end-to-end automation frameworks in Playwright and TypeScript using the Page Object Model and spec-driven development practices.</li><li>Apply AI-assisted testing workflows to test design, maintenance and failure triage.</li><li>Operate a self-hosted infrastructure lab (Docker, NAS, uptime monitoring, networking) to maintain hands-on reliability and operations skills.</li></ul>",
+      "technologies": ["Playwright", "TypeScript", "Docker"]
+    },
+    {
+      "company": "Avenue Code",
+      "title": "Principal Technical Project Manager",
+      "start_date": "2022-12-01",
+      "end_date": "2023-12-31",
+      "is_current": false,
+      "description": "<p>Led delivery of a digital transformation program at a major U.S. insurance carrier in a SOX-regulated environment, managing an offshore development team delivering new capabilities for insurance brokers.</p>",
+      "more_details": "<ul><li>Took over a project that had been stalled for two years without a release and delivered it to production within five months, driving scope control, dependency management and release readiness.</li><li>Introduced Agile delivery practices in a predominantly waterfall organisation, working through significant resistance to process change to establish a working delivery cadence.</li><li>Reported delivery status, risks and dependencies daily to the U.S.-based Senior Manager and weekly to the Delivery Manager, escalating blockers for resolution.</li></ul>",
+      "technologies": ["Agile"]
+    },
+    {
+      "company": "CI&T",
+      "title": "Technical Project Manager, Platform & Cloud Operations",
+      "start_date": "2021-07-01",
+      "end_date": "2022-12-31",
+      "is_current": false,
+      "description": "<p>Managed a 35+ member DevOps and Cloud organisation across Brazil, Portugal and China, providing 24/7 follow-the-sun coverage for a high-availability B2B e-commerce platform processing over 30 million orders a month across 20 countries.</p>",
+      "more_details": "<ul><li>Served as the DevOps and Cloud focal point for production incidents: engaged on every Severity 1, 2 and 3 incident, brought the right engineers into the war room and coordinated diagnosis and recovery within defined SLAs.</li><li>Communicated incident status from identification to resolution, keeping engaged teams, support and business stakeholders aligned through structured updates.</li><li>Contributed technical root cause findings to post-incident reviews and carried the resulting preventive actions through the DevOps backlog to completion.</li><li>Designed a service request triage model in Jira Service Management for a platform used by 1,500+ developers, classifying hundreds of daily requests against defined response targets.</li><li>Reviewed service metrics weekly with the system architects, establishing a continual improvement cadence across three platform teams.</li><li>Removed the access-provisioning bottleneck those metrics exposed by automating manager approvals in Power Automate and folding them into onboarding, cutting access requests from around 7 days to around 2.</li><li>Led CI/CD, Disaster Recovery and High Availability initiatives, increasing deployment success rate to over 96%.</li></ul>",
+      "technologies": ["Jira Service Management", "Power Automate", "CI/CD", "Disaster Recovery", "High Availability"]
+    },
+    {
+      "company": "CI&T",
+      "title": "Scrum Master",
+      "start_date": "2019-12-01",
+      "end_date": "2021-07-31",
+      "is_current": false,
+      "description": "<p>Coached 12+ engineers on Agile and Scrum practices, improving sprint predictability and completion rates.</p>",
+      "more_details": "<ul><li>Removed delivery impediments and coordinated cross-functional teams to resolve issues and maintain delivery flow.</li><li>Implemented velocity, quality and throughput metrics to support data-driven improvement decisions.</li></ul>",
+      "technologies": ["Agile", "Scrum"]
+    },
+    {
+      "company": "CI&T",
+      "title": "Quality Assurance Lead",
+      "start_date": "2019-07-01",
+      "end_date": "2019-12-31",
+      "is_current": false,
+      "description": "<p>Led and mentored a team of 5+ QA engineers across value streams, working on-site with a U.S. enterprise client.</p>",
+      "more_details": "<ul><li>Owned QA planning, estimation, risk management, defect reporting and release readiness.</li><li>Established root cause analysis and quality metrics that reduced defect leakage to production by around 30%.</li></ul>",
+      "technologies": ["Root Cause Analysis", "Quality Metrics"]
+    },
+    {
+      "company": "CI&T",
+      "title": "Senior Quality Assurance Engineer",
+      "start_date": "2017-01-01",
+      "end_date": "2019-06-30",
+      "is_current": false,
+      "description": "<p>Designed and scaled automation frameworks using Selenium WebDriver and Robot Framework, reducing manual regression effort by around 70%.</p>",
+      "more_details": "<ul><li>Led release quality for multi-country expansions, executing four on-site go-lives with no critical post-release issues.</li></ul>",
+      "technologies": ["Selenium WebDriver", "Robot Framework"]
+    },
+    {
+      "company": "CI&T",
+      "title": "Quality Assurance Engineer / Software Engineer",
+      "start_date": "2015-02-01",
+      "end_date": "2017-01-31",
+      "is_current": false,
+      "description": "<p>Provided N2/N3 production support, troubleshooting application issues and contributing to faster incident resolution.</p>",
+      "more_details": "<ul><li>Developed automation in Python and JavaScript and supported CI/CD pipelines with Jenkins on Google Cloud Platform.</li></ul>",
+      "technologies": ["Python", "JavaScript", "Jenkins", "Google Cloud Platform"]
+    }
+  ],
+  "education": [],
+  "certifications": []
+}
