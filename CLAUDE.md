@@ -88,6 +88,33 @@ Technical-editorial: ink on bone, hairline rules, one accent, no rounded corners
 - `tests/seed.spec.ts` is referenced as a seed dependency in spec comments
 - Test plan lives in `specs/static-webserver-test-plan.md` — spec files reference it via `// spec:` comment
 
+## Deploying
+
+Two paths exist. They do the same work and are safe to run side by side; the
+pull one does not depend on anything reaching into the network.
+
+**Pull (`scripts/nas-pull-deploy.sh`, run on the NAS).** Asks GitHub whether
+`main` has moved and acts on the answer. Install on a short schedule:
+
+```bash
+*/5 * * * * /volume2/docker/moneda-bio/scripts/nas-pull-deploy.sh
+```
+
+It exits silently when the checkout already matches origin, refuses to run if
+`.env` is missing (secrets stay on the NAS and are never written by a deploy),
+builds the images one at a time, leaves `cloudflared` alone, and fails if the
+frontend does not report healthy afterwards. `flock` prevents overlapping runs.
+Output goes to `.deploy.log` in the repository root, which is gitignored.
+
+**Push (`.github/workflows/docker-image.yml`).** Fires on merge to `main` and
+SSHes in over the Cloudflare tunnel. Retries four times, because the tunnel
+intermittently refuses the SSH hostname at the edge even while serving the site
+normally.
+
+Neither path restarts `cloudflared`: recreating it drops the tunnel carrying the
+SSH session, which used to make a successful deploy report failure. Restart it
+by hand when its own configuration changes.
+
 ## Key Conventions
 
 - Experience is an **editorial index of rows**, not a grid of cards. Rows use **Framer Motion shared layout** (`layoutId={card-${id}}`): clicking a row morphs it into the detail panel. The same `layoutId` is on both the row and the panel — do not break this pairing.

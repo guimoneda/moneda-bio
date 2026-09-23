@@ -42,5 +42,8 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
+# NAS pull-deploy log (scripts/nas-pull-deploy.sh)
+.deploy.log
+
 # Claude Code
 .claude/settings.local.json
