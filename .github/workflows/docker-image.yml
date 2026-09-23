@@ -54,13 +54,20 @@ jobs:
           # deploy severs its own connection and exits 255 ("Broken pipe") after
           # having actually succeeded. cloudflared is left running; restart it by
           # hand on the rare occasion its own config changes.
+          #
+          # Build one image at a time. `up -d --build` builds them concurrently,
+          # and on this host that starved the frontend's webpack: it died 1.5s in
+          # with no output while the backend's pip install ran beside it. The
+          # same build run on its own completes in under 9 seconds.
           ssh nas "cd /volume2/docker/moneda-bio && \
           umask 077 && \
           printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
           chmod 600 .env && \
           git fetch origin main && \
           git reset --hard origin/main && \
-          docker compose up -d --build db backend frontend"
+          docker compose build backend && \
+          docker compose build frontend && \
+          docker compose up -d db backend frontend"
 
   # Post-deploy smoke test against the live production site.
   # Runs only if deploy succeeded. A failure here alerts (red X) but cannot
