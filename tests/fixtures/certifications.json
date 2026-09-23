@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Fixture Certified Tester, Advanced",
+    "issuing_organization": "Fixture Board",
+    "issue_date": "2021-09-01",
+    "expiration_date": null,
+    "credential_url": "https://example.com/verify/1",
+    "is_active": true,
+    "description": "<p>Fixture certification with no expiry.</p>"
+  },
+  {
+    "id": 2,
+    "name": "Fixture Cloud Practitioner",
+    "issuing_organization": "Fixture Cloud",
+    "issue_date": "2022-06-01",
+    "expiration_date": "2025-06-01",
+    "credential_url": null,
+    "is_active": false,
+    "description": ""
+  }
+]

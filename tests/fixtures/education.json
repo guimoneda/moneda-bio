@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "institution": "Fixture Institute of Technology",
+    "degree": "MSc, Software Engineering",
+    "start_date": "2022-02-01",
+    "end_date": null,
+    "is_active": true,
+    "description": "<p>Fixture description for an in-progress course.</p>"
+  },
+  {
+    "id": 2,
+    "institution": "Fixture State University",
+    "degree": "BSc, Information Systems",
+    "start_date": "2013-02-01",
+    "end_date": "2017-12-01",
+    "is_active": false,
+    "description": "<p>Fixture description for a completed course.</p>"
+  }
+]
