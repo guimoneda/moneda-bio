@@ -86,11 +86,22 @@ services:
     # No ports needed, it talks to the containers internally.
     #
     # No extra_hosts either. The host.docker.internal:host-gateway mapping that
-    # used to be here gave the tunnel a route to the NAS host itself, which is
-    # what let GitHub Actions SSH in to deploy. That deploy is gone -- the NAS
-    # pulls instead -- so the route has no remaining user, and removing it
-    # means a leaked tunnel token can no longer be pointed at host services.
-    # Every ingress rule the site needs resolves a container by Docker DNS.
+    # used to be here existed for exactly one tunnel route: the SSH hostname
+    # that GitHub Actions deployed through, pointed at ssh://host.docker.internal:22.
+    # That deploy is gone -- the NAS pulls instead -- so the mapping has no
+    # remaining user, and without it a leaked tunnel token can no longer be
+    # aimed at services on the host. Checked against the live route table:
+    # every other route resolves a container by Docker DNS, so nothing else
+    # depended on it.
+    #
+    # Before recreating this container, check what networks it is actually on:
+    #
+    #     docker inspect cloudflared --format '{{json .NetworkSettings.Networks}}'
+    #
+    # At least one tunnel route targets a container that is NOT defined in this
+    # file, which means cloudflared has been attached to a network Compose does
+    # not know about. `docker compose up -d cloudflared` would recreate it with
+    # only this project's default network and silently break that route.
 
 volumes:
   postgres_data:

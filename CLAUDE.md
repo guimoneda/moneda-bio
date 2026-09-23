@@ -126,6 +126,25 @@ used to make a successful deploy report failure. Restart it by hand when its own
 configuration changes — including after the image pin in `docker-compose.yml`
 is bumped.
 
+### Tunnel routes
+
+Ingress lives in the Cloudflare dashboard, not this repository, so the two can
+drift. Two things about it are worth knowing before changing anything:
+
+- **`/admin` is published to the internet**, routed to `bio-backend`. It is
+  protected by a Django password and nothing else — no rate limiting, no second
+  factor. It is also the only page that loads CKEditor, which is unpatched and
+  unpatchable for free (see the `ckeditor.W001` system check), and the only page
+  served without the CSP that `frontend/nginx.conf` applies to everything else.
+  Putting Cloudflare Access in front of this route is the single highest-value
+  hardening available here.
+- **At least one route targets a container this file does not define.** For that
+  name to resolve, `cloudflared` must have been attached to a network outside
+  this Compose project. Recreating it from Compose alone would drop that
+  attachment and break the route without any error in the deploy log. Run
+  `docker inspect cloudflared --format '{{json .NetworkSettings.Networks}}'`
+  first and re-attach afterwards.
+
 ## Key Conventions
 
 - Experience is an **editorial index of rows**, not a grid of cards. Rows use **Framer Motion shared layout** (`layoutId={card-${id}}`): clicking a row morphs it into the detail panel. The same `layoutId` is on both the row and the panel — do not break this pairing.
