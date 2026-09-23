@@ -59,15 +59,45 @@ jobs:
           # and on this host that starved the frontend's webpack: it died 1.5s in
           # with no output while the backend's pip install ran beside it. The
           # same build run on its own completes in under 9 seconds.
-          ssh nas "cd /volume2/docker/moneda-bio && \
-          umask 077 && \
-          printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
-          chmod 600 .env && \
-          git fetch origin main && \
-          git reset --hard origin/main && \
-          docker compose build backend && \
-          docker compose build frontend && \
-          docker compose up -d db backend frontend"
+          # Retried, because the tunnel is intermittently unavailable rather
+          # than misconfigured: the same command failed at 18:06, succeeded at
+          # 18:43 and failed again at 19:01 on the same day, always as
+          # "websocket: bad handshake" half a second in, before reaching the NAS.
+          # cloudflared's own log shows why -- it cannot size its UDP receive
+          # buffer ("was: 208 kiB, wanted: 7168 kiB"), and its QUIC connections
+          # drop and re-register periodically. A request landing in one of those
+          # windows is refused at the edge.
+          #
+          # Every step below is idempotent, so a retry repeats work rather than
+          # compounding it. This masks the flakiness; it does not fix it. The
+          # real fix is on the NAS: raise net.core.rmem_max/wmem_max, or run
+          # cloudflared with --protocol http2 to avoid QUIC entirely.
+          deploy() {
+            ssh nas "cd /volume2/docker/moneda-bio && \
+            umask 077 && \
+            printf 'TUNNEL_TOKEN=${{ secrets.TUNNEL_TOKEN }}\nPOSTGRES_USER=${{ secrets.POSTGRES_USER }}\nPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\nPOSTGRES_DB=${{ secrets.POSTGRES_DB }}\nDJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}\n' > .env && \
+            chmod 600 .env && \
+            git fetch origin main && \
+            git reset --hard origin/main && \
+            docker compose build backend && \
+            docker compose build frontend && \
+            docker compose up -d db backend frontend"
+          }
+
+          for attempt in 1 2 3 4; do
+            if deploy; then
+              echo "Deploy succeeded on attempt $attempt."
+              exit 0
+            fi
+            if [ "$attempt" -lt 4 ]; then
+              delay=$((attempt * 20))
+              echo "::warning::Deploy attempt $attempt failed. Retrying in ${delay}s."
+              sleep "$delay"
+            fi
+          done
+
+          echo "::error::Deploy failed after 4 attempts. If every attempt ended in \"websocket: bad handshake\", the tunnel is down rather than flapping; check cloudflared on the NAS."
+          exit 1
 
   # Post-deploy smoke test against the live production site.
   # Runs only if deploy succeeded. A failure here alerts (red X) but cannot
