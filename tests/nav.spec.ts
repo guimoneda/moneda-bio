@@ -14,7 +14,11 @@ test.describe('Frontend UI Element Tests', () => {
       'href',
       '/jobs'
     );
-    await expect(page.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin/');
+    // The nav must not advertise the admin login. It is a public page, and the
+    // link only told every visitor where the credential prompt lives. Asserted
+    // as absence so it cannot quietly return.
+    await expect(page.getByRole('link', { name: 'Admin' })).toHaveCount(0);
+    await expect(page.locator('a[href^="/admin"]')).toHaveCount(0);
   });
 
   test('Skip link is the first focusable element', async ({ page }) => {
@@ -51,6 +55,8 @@ test.describe('Frontend UI Element Tests', () => {
     await toggle.click();
     await expect(page.getByTestId('mobile-menu')).toBeVisible();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    await expect(page.getByTestId('mobile-menu').locator('a[href^="/admin"]')).toHaveCount(0);
 
     await page.getByTestId('mobile-menu').getByRole('link', { name: 'Experience' }).click();
     await expect(page).toHaveURL(/\/jobs$/);
