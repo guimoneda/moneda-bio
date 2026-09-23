@@ -117,12 +117,10 @@ const Navbar: React.FC = () => {
 
             <ThemeToggle />
 
-            <a
-              href="/admin/"
-              className="ml-1 hidden border border-rule/25 px-4 py-2 text-sm text-mute transition-colors duration-300 hover:border-signal hover:text-signal md:inline-flex"
-            >
-              Admin
-            </a>
+            {/* No link to /admin here, deliberately. The nav is public, and a
+                signpost to the login served no visitor -- the owner can type
+                the URL. Access sits in front of that route now; the link only
+                advertised the target. */}
 
             <button
               type="button"
@@ -161,19 +159,13 @@ const Navbar: React.FC = () => {
           >
             <ul className="mx-auto max-w-shell px-6 pb-8 pt-2">
               {NAV_LINKS.map((link) => (
-                <li key={link.to} className="border-t border-rule/15">
+                <li key={link.to} className="border-t border-rule/15 last:border-b">
                   <Link to={link.to} className="flex items-baseline gap-4 py-5">
                     <span className="font-mono text-[0.65rem] text-signal">{link.index}</span>
                     <span className="text-display-sm font-display text-ink">{link.label}</span>
                   </Link>
                 </li>
               ))}
-              <li className="border-y border-rule/15">
-                <a href="/admin/" className="flex items-baseline gap-4 py-5">
-                  <span className="font-mono text-[0.65rem] text-signal">03</span>
-                  <span className="text-display-sm font-display text-mute">Admin</span>
-                </a>
-              </li>
             </ul>
           </motion.div>
         )}

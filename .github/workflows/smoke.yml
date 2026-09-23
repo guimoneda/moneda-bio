@@ -1,0 +1,93 @@
+name: Production smoke test
+
+# This workflow no longer deploys. It used to SSH into the NAS over the
+# Cloudflare tunnel, write .env from GitHub secrets and run docker compose --
+# which meant GitHub needed a private key, a host and every production secret,
+# and a deploy failed whenever the tunnel refused the SSH hostname at the edge
+# (frequently, while serving the site normally).
+#
+# scripts/nas-pull-deploy.sh replaced all of that. The NAS asks GitHub whether
+# main has moved and acts on the answer, on a five-minute cron. Nothing reaches
+# in, and the secrets never leave the house.
+#
+# What survives here is the part that was never about SSH: checking that
+# whatever landed actually serves a working site.
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+# A second push to main makes the earlier verification pointless.
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The deploy is now asynchronous: a push to main is picked up by the next
+      # cron tick, up to five minutes later, and the build takes about a minute
+      # more. Testing immediately would grade the PREVIOUS build and report a
+      # green that means nothing.
+      #
+      # This is a timer, not a handshake -- nothing below reads back which
+      # commit the NAS is serving, because the site exposes no build stamp. If
+      # this job ever needs to be certain rather than merely late, that stamp is
+      # the thing to add.
+      - name: Wait for the scheduled deploy to land
+        if: github.event_name == 'push'
+        run: sleep 420
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # A container that has just been recreated needs a moment before it
+      # answers. Wait for a 200 rather than letting every spec fail on connect.
+      - name: Wait for the site to answer
+        run: |
+          for i in $(seq 1 40); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://guimoneda.com/ || true)
+            echo "attempt $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 15
+          done
+          echo "::error::site did not return 200 within ~10 min" >&2
+          exit 1
+
+      # No BASE_URL and no E2E_LOCAL: playwright.config.ts then targets
+      # production, which is the whole point of this job. The branch-level
+      # suite in playwright.yml is the one that tests the build.
+      - name: Run Playwright against production
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

@@ -2,17 +2,17 @@
 #
 # Pull-based deploy, run on the NAS itself.
 #
-# The push-based path in .github/workflows/docker-image.yml requires GitHub to
-# reach into the house over a Cloudflare tunnel, which has proven to be the most
-# fragile part of the system: a healthy tunnel serving the site has still
-# refused the SSH hostname at the edge, and a deploy is blocked whenever that
-# happens. This inverts it. Nothing needs to reach in; the NAS asks GitHub
-# whether main has moved and acts on the answer.
+# This is the only deploy path. It replaced a GitHub Actions job that SSHed in
+# over the Cloudflare tunnel, which was the most fragile part of the system: a
+# healthy tunnel serving the site would still refuse the SSH hostname at the
+# edge, and a deploy was blocked whenever that happened. This inverts it.
+# Nothing needs to reach in; the NAS asks GitHub whether main has moved and acts
+# on the answer.
 #
-# It also keeps the secrets at home. The push deploy rewrites .env on every run,
-# piping the database password, Django secret key and tunnel token through a
-# GitHub Actions command line. Here .env is expected to already exist and is
-# never touched.
+# It also keeps the secrets at home. The old push deploy rewrote .env on every
+# run, piping the database password, Django secret key and tunnel token through
+# a GitHub Actions command line, so GitHub had to hold all of them. Here .env is
+# expected to already exist and is never touched.
 #
 # Safe to run on a short schedule: it exits immediately when the local checkout
 # already matches origin, and flock keeps two runs from overlapping.
@@ -29,6 +29,12 @@
 #     LOCK_FILE  lock path               (default: /tmp/moneda-bio-deploy.lock)
 
 set -euo pipefail
+
+# cron runs with a near-empty PATH, so docker and git are frequently not found
+# when the same script that works in a login shell runs on a schedule. Prepend
+# the usual locations rather than relying on the caller's environment.
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin${PATH:+:$PATH}"
+export PATH
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -89,6 +95,13 @@ wait_for_health() {
 
 deploy() {
     cd "$REPO_DIR" || die "Cannot enter $REPO_DIR"
+
+    # Named explicitly so a scheduled run fails with the missing tool rather
+    # than an obscure "command not found" halfway through.
+    local tool
+    for tool in git docker flock; do
+        command -v "$tool" >/dev/null 2>&1 || die "$tool is not on PATH. Scheduled runs need it; PATH is: $PATH"
+    done
 
     [ -d .git ] || die "$REPO_DIR is not a git checkout."
     [ -f .env ] || die ".env is missing. It holds the database password, Django secret key and tunnel token, and this script never creates it."

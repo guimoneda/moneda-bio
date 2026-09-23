@@ -10,6 +10,18 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    # The backend's first act is `migrate`, which exits non-zero if Postgres is
+    # not yet accepting connections. `restart: unless-stopped` papered over that
+    # by retrying the whole container; gating on health makes the start ordered
+    # instead of a race that usually resolves itself.
+    # $$ so Compose leaves the expansion to the shell inside the container,
+    # where the postgres image has already set these.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     restart: unless-stopped
 
   # 2. THE BACKEND (Django)
@@ -33,13 +45,18 @@ services:
     # No host port published: the tunnel reaches this by container DNS, so
     # publishing one would only widen LAN exposure.
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       # dynamically build the URL using the same variables
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@bio-db:5432/${POSTGRES_DB}
-      ALLOWED_HOSTS: 'guimoneda.com,localhost,127.0.0.1'
-      CSRF_TRUSTED_ORIGINS: 'https://guimoneda.com,https://www.guimoneda.com'
+      # ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS used to be set here and were
+      # never read: config/settings.py assigns both as literals and consults no
+      # environment variable for either. Worse, the values here had drifted --
+      # they omitted www.guimoneda.com and bio-backend, so this block described
+      # a policy the application did not have. The real list lives in
+      # config/settings.py; change it there.
     restart: unless-stopped
 
   # 3. THE FRONTEND (compiled SPA behind nginx)
@@ -55,16 +72,36 @@ services:
     # configured in Cloudflare, so that needs no change.
     restart: unless-stopped
 
-
   # 4. THE TUNNEL
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    # Pinned rather than :latest, for the reason the deploy tooling was pinned:
+    # an unpinned tag lets the thing carrying all inbound traffic change with
+    # no commit to point at. This is also the one container a deploy never
+    # recreates (see scripts/nas-pull-deploy.sh), so drift here would surface
+    # only on a manual restart, far from whatever caused it. Bump on purpose.
+    image: cloudflare/cloudflared:2026.9.1
     container_name: cloudflared
     restart: unless-stopped
     command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    # No ports needed, it talks to the containers internally
+    # No ports needed, it talks to the containers internally.
+    #
+    # No extra_hosts either. The host.docker.internal:host-gateway mapping that
+    # used to be here existed for exactly one tunnel route: the SSH hostname
+    # that GitHub Actions deployed through, pointed at ssh://host.docker.internal:22.
+    # That deploy is gone -- the NAS pulls instead -- so the mapping has no
+    # remaining user, and without it a leaked tunnel token can no longer be
+    # aimed at services on the host. Checked against the live route table:
+    # every other route resolves a container by Docker DNS, so nothing else
+    # depended on it.
+    #
+    # Before recreating this container, check what networks it is actually on:
+    #
+    #     docker inspect cloudflared --format '{{json .NetworkSettings.Networks}}'
+    #
+    # At least one tunnel route targets a container that is NOT defined in this
+    # file, which means cloudflared has been attached to a network Compose does
+    # not know about. `docker compose up -d cloudflared` would recreate it with
+    # only this project's default network and silently break that route.
 
 volumes:
   postgres_data:
