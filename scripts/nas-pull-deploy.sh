@@ -30,6 +30,12 @@
 
 set -euo pipefail
 
+# cron runs with a near-empty PATH, so docker and git are frequently not found
+# when the same script that works in a login shell runs on a schedule. Prepend
+# the usual locations rather than relying on the caller's environment.
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin${PATH:+:$PATH}"
+export PATH
+
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 REPO_DIR="${REPO_DIR:-$(dirname -- "$SCRIPT_DIR")}"
@@ -89,6 +95,13 @@ wait_for_health() {
 
 deploy() {
     cd "$REPO_DIR" || die "Cannot enter $REPO_DIR"
+
+    # Named explicitly so a scheduled run fails with the missing tool rather
+    # than an obscure "command not found" halfway through.
+    local tool
+    for tool in git docker flock; do
+        command -v "$tool" >/dev/null 2>&1 || die "$tool is not on PATH. Scheduled runs need it; PATH is: $PATH"
+    done
 
     [ -d .git ] || die "$REPO_DIR is not a git checkout."
     [ -f .env ] || die ".env is missing. It holds the database password, Django secret key and tunnel token, and this script never creates it."
