@@ -12,6 +12,22 @@ const KNOWN_EXTERNAL_PATTERNS = [
   'Cross-Origin',
   'bad URL',                  // WebKit: some resource load quirk
   'Failed to load resource',  // Network-level errors from third-party resources
+
+  // Cloudflare's JavaScript Detections injects an inline bootstrap for
+  // /cdn-cgi/challenge-platform/scripts/jsd/main.js into every HTML response.
+  // Our CSP has no 'unsafe-inline', so the browser refuses it -- correctly:
+  // the script is not ours and not served from our origin.
+  //
+  // It cannot be turned off. On the free plan JavaScript Detections is bound
+  // to Bot Fight Mode and has no independent switch, and a CSP hash is
+  // impossible because the injected body carries per-request r/t parameters,
+  // so its hash differs on every load.
+  //
+  // Note this pattern says nothing about WHOSE inline script was refused, so
+  // on its own it would also mask a CSP violation from our own code. The
+  // "serves no inline script of its own" test below closes that gap by
+  // asserting directly that the only inline block in our HTML is Cloudflare's.
+  'Refused to execute inline script',
 ];
 
 function isAppError(msg: string): boolean {
@@ -68,5 +84,23 @@ test.describe('SEO and metadata', () => {
     await page.waitForLoadState('networkidle');
     const fatalErrors = errors.filter(isAppError);
     expect(fatalErrors).toHaveLength(0);
+  });
+
+  // Guards what the 'Refused to execute inline script' filter above gives up.
+  // That filter cannot tell our inline script from Cloudflare's, so this
+  // asserts on the served HTML instead: every inline block must be the
+  // challenge-platform bootstrap Cloudflare injects at the edge. If our own
+  // build ever starts emitting inline JS -- losing INLINE_RUNTIME_CHUNK=false
+  // in frontend/Dockerfile would do it -- this fails even though the console
+  // error is now filtered.
+  test('The app serves no inline script of its own', async ({ page }) => {
+    const html = await page.request.get('/').then((r) => r.text());
+
+    const inlineBodies = [...html.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)]
+      .map((m) => m[1].trim())
+      .filter(Boolean);
+
+    const notCloudflare = inlineBodies.filter((body) => !body.includes('challenge-platform'));
+    expect(notCloudflare).toEqual([]);
   });
 });
