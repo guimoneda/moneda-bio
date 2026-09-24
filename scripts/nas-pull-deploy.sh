@@ -71,6 +71,20 @@ LOCK_FILE="${LOCK_FILE:-/tmp/moneda-bio-deploy.lock}"
 # A marker written only after a health check has neither hole.
 STATE_FILE="${STATE_FILE:-$REPO_DIR/.deployed-sha}"
 
+# Git refuses to touch a repository owned by another user ("detected dubious
+# ownership") since 2.35.2. That bites here whenever the schedule runs as a
+# different user than the one who owns the checkout -- installing the cron job
+# on this NAS needs root, while the checkout belongs to the login account, so
+# the common case is the broken one. Every git call below would fail, and the
+# deploy would report a network problem it does not have.
+#
+# Scoped to this one path and to this process only: narrower than the global
+# `git config --global --add safe.directory` that git's own error suggests,
+# and it leaves no state behind on the machine.
+export GIT_CONFIG_COUNT=1
+export GIT_CONFIG_KEY_0=safe.directory
+export GIT_CONFIG_VALUE_0="$REPO_DIR"
+
 # Services the deploy owns. cloudflared is deliberately absent: recreating it
 # drops the tunnel that serves the site, and nothing here needs it restarted.
 SERVICES=(db backend frontend)
@@ -132,9 +146,24 @@ deploy() {
     done
 
     [ -d .git ] || die "$REPO_DIR is not a git checkout."
+
+    # Not fatal, but worth saying once per deploy: a run as root rewrites files
+    # in a checkout owned by someone else, so the owner may later find bits of
+    # their own repository no longer writable by them.
+    local repo_uid me
+    repo_uid="$(stat -c '%u' "$REPO_DIR" 2>/dev/null || echo unknown)"
+    me="$(id -u)"
+    if [ "$repo_uid" != "unknown" ] && [ "$repo_uid" != "$me" ]; then
+        log "NOTE: running as uid $me against a checkout owned by uid $repo_uid; files this deploy writes will belong to uid $me."
+    fi
     [ -f .env ] || die ".env is missing. It holds the database password, Django secret key and tunnel token, and this script never creates it."
 
-    git fetch --quiet origin "$BRANCH" || die "git fetch failed. Is the network up?"
+    # Report what git actually said. This used to read "Is the network up?",
+    # which sent the investigation in the wrong direction the one time it fired.
+    local fetch_err
+    if ! fetch_err="$(git fetch --quiet origin "$BRANCH" 2>&1)"; then
+        die "git fetch failed: ${fetch_err:-no output}"
+    fi
 
     local deployed target
     target="$(git rev-parse "origin/$BRANCH")"
