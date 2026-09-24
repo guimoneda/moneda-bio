@@ -97,8 +97,18 @@ credential exists outside the house.
 moved and acts on the answer. Install on a short schedule:
 
 ```bash
-*/5 * * * * /volume2/docker/moneda-bio/scripts/nas-pull-deploy.sh
+line='*/5 * * * * /volume2/docker/moneda-bio/scripts/nas-pull-deploy.sh'
+( crontab -l 2>/dev/null | grep -Fv 'nas-pull-deploy.sh'; echo "$line" ) | crontab -
+crontab -l    # must echo the job back
 ```
+
+Install it by piping, not with `crontab -e`. With no `EDITOR` set — the default
+on this NAS — `crontab -e` exits in a way it treats as an abort, prints `edits
+left in /tmp/crontab.XXXX/crontab` and installs nothing. That message reads like
+a saved backup rather than a failure, and a deploy that was never scheduled
+looks exactly like a deploy that has nothing to do: no errors, no log lines,
+`.deploy.log` simply absent. Verify with `crontab -l`, and verify a daemon
+exists to run it (`pgrep -x crond || pgrep -x cron`).
 
 It exits silently when the checkout already matches origin, refuses to run if
 `.env` is missing (secrets stay on the NAS and are never written by a deploy),

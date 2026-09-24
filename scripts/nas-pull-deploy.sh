@@ -17,9 +17,21 @@
 # Safe to run on a short schedule: it exits immediately when the local checkout
 # already matches origin, and flock keeps two runs from overlapping.
 #
-# Install (adjust the path to wherever this repository lives):
+# Install (adjust the path to wherever this repository lives). Pipe it in
+# rather than using `crontab -e`: with no EDITOR set, which is the default on
+# this NAS, the editor exits in a way crontab treats as an abort. It then
+# prints "edits left in /tmp/crontab.XXXX/crontab" and installs NOTHING, which
+# reads like a note about a saved backup rather than a failure. That silence
+# cost a day of deploys that were never scheduled.
 #
-#     */5 * * * * /volume2/docker/moneda-bio/scripts/nas-pull-deploy.sh
+#     line='*/5 * * * * /volume2/docker/moneda-bio/scripts/nas-pull-deploy.sh'
+#     ( crontab -l 2>/dev/null | grep -Fv 'nas-pull-deploy.sh'; echo "$line" ) | crontab -
+#     crontab -l            # MUST echo the job back; empty means nothing installed
+#
+# Then check a daemon is actually running to execute it -- an installed crontab
+# with no cron daemon is indistinguishable from no crontab at all:
+#
+#     pgrep -x crond || pgrep -x cron || echo "NO CRON DAEMON RUNNING"
 #
 # Configure with environment variables if the defaults do not fit:
 #
