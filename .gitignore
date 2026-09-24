@@ -42,8 +42,11 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
-# NAS pull-deploy log (scripts/nas-pull-deploy.sh)
+# NAS pull-deploy log and state (scripts/nas-pull-deploy.sh). The state file
+# records the last commit that built, started and passed its health check; it
+# is per-machine, so it must never be committed.
 .deploy.log
+.deployed-sha
 
 # Claude Code
 .claude/settings.local.json
