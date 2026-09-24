@@ -27,6 +27,7 @@
 #     BRANCH     branch to track         (default: main)
 #     LOG_FILE   where to append output  (default: <repo>/.deploy.log)
 #     LOCK_FILE  lock path               (default: /tmp/moneda-bio-deploy.lock)
+#     STATE_FILE last deployed commit     (default: <repo>/.deployed-sha)
 
 set -euo pipefail
 
@@ -42,6 +43,21 @@ REPO_DIR="${REPO_DIR:-$(dirname -- "$SCRIPT_DIR")}"
 BRANCH="${BRANCH:-main}"
 LOG_FILE="${LOG_FILE:-$REPO_DIR/.deploy.log}"
 LOCK_FILE="${LOCK_FILE:-/tmp/moneda-bio-deploy.lock}"
+
+# Records the commit whose images were actually built, started and reported
+# healthy. Deliberately NOT the checkout's HEAD: HEAD says which source is on
+# disk, which is not the same question. Two ways they diverge, both seen:
+#
+#   - Someone runs `git reset --hard origin/main` by hand (installing this
+#     script in the first place requires exactly that). HEAD now matches
+#     origin, so a HEAD-based check concludes there is nothing to do and the
+#     containers keep serving the previous image forever.
+#   - A deploy resets the checkout and then fails in `docker compose build`.
+#     HEAD again matches origin, so the next run skips the retry and the
+#     failure is silent and permanent.
+#
+# A marker written only after a health check has neither hole.
+STATE_FILE="${STATE_FILE:-$REPO_DIR/.deployed-sha}"
 
 # Services the deploy owns. cloudflared is deliberately absent: recreating it
 # drops the tunnel that serves the site, and nothing here needs it restarted.
@@ -108,18 +124,26 @@ deploy() {
 
     git fetch --quiet origin "$BRANCH" || die "git fetch failed. Is the network up?"
 
-    local current target
-    current="$(git rev-parse HEAD)"
+    local deployed target
     target="$(git rev-parse "origin/$BRANCH")"
+    deployed="$(cat "$STATE_FILE" 2>/dev/null || true)"
 
-    if [ "$current" = "$target" ]; then
+    if [ "$deployed" = "$target" ]; then
         # Quiet on purpose: this is the common case on a short schedule, and a
         # log line every few minutes buries the deploys that matter.
         return 0
     fi
 
-    log "=== Deploying ${current:0:7} -> ${target:0:7} on $BRANCH ==="
-    git log --oneline "${current}..${target}" 2>/dev/null | sed 's/^/    /' | tee -a "$LOG_FILE" || true
+    if [ -n "$deployed" ]; then
+        log "=== Deploying ${deployed:0:7} -> ${target:0:7} on $BRANCH ==="
+        git log --oneline "${deployed}..${target}" 2>/dev/null | sed 's/^/    /' | tee -a "$LOG_FILE" || true
+    else
+        # No marker: first run after installing this script, or after the state
+        # file was removed. Build unconditionally rather than assume the
+        # running containers match origin -- that assumption is the bug this
+        # file exists to avoid.
+        log "=== Deploying ${target:0:7} on $BRANCH (no previous deploy recorded) ==="
+    fi
 
     # Matches the push deploy: the checkout is a deployment target, not a
     # workspace, so local edits are discarded rather than merged.
@@ -135,6 +159,10 @@ deploy() {
     docker compose up -d "${SERVICES[@]}" >>"$LOG_FILE" 2>&1 || die "docker compose up failed. See $LOG_FILE."
 
     wait_for_health "$HEALTH_CONTAINER"
+
+    # Only now is this commit genuinely deployed. Anything that exits earlier
+    # leaves the marker alone, so the next run retries instead of assuming.
+    printf '%s\n' "$target" > "$STATE_FILE"
 
     log "=== Deployed ${target:0:7} ==="
 }
