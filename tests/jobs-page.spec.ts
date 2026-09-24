@@ -47,8 +47,13 @@ test.describe('Jobs page (/jobs)', () => {
     await expect(heading).toBeVisible();
 
     const rows = page.getByTestId('education-index').locator('li');
-    expect(await rows.count()).toBeGreaterThanOrEqual(1);
+    // toBeVisible() first, then count. locator.count() is a one-shot query and
+    // does not retry, so counting first races the fetch that fills this list:
+    // the heading above is static markup and paints immediately, while the rows
+    // arrive with /api/education/. Against production that race is
+    // real and intermittent -- it failed one run and came back flaky the next.
     await expect(rows.first()).toBeVisible();
+    expect(await rows.count()).toBeGreaterThanOrEqual(1);
   });
 
   test('Certifications section renders', async ({ page }) => {
@@ -57,7 +62,12 @@ test.describe('Jobs page (/jobs)', () => {
     await expect(heading).toBeVisible();
 
     const rows = page.getByTestId('certification-index').locator('li');
-    expect(await rows.count()).toBeGreaterThanOrEqual(1);
+    // toBeVisible() first, then count. locator.count() is a one-shot query and
+    // does not retry, so counting first races the fetch that fills this list:
+    // the heading above is static markup and paints immediately, while the rows
+    // arrive with /api/certification/. Against production that race is
+    // real and intermittent -- it failed one run and came back flaky the next.
     await expect(rows.first()).toBeVisible();
+    expect(await rows.count()).toBeGreaterThanOrEqual(1);
   });
 });
