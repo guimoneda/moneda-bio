@@ -12,25 +12,44 @@ const KNOWN_EXTERNAL_PATTERNS = [
   'Cross-Origin',
   'bad URL',                  // WebKit: some resource load quirk
   'Failed to load resource',  // Network-level errors from third-party resources
-
-  // Cloudflare's JavaScript Detections injects an inline bootstrap for
-  // /cdn-cgi/challenge-platform/scripts/jsd/main.js into every HTML response.
-  // Our CSP has no 'unsafe-inline', so the browser refuses it -- correctly:
-  // the script is not ours and not served from our origin.
-  //
-  // It cannot be turned off. On the free plan JavaScript Detections is bound
-  // to Bot Fight Mode and has no independent switch, and a CSP hash is
-  // impossible because the injected body carries per-request r/t parameters,
-  // so its hash differs on every load.
-  //
-  // Note this pattern says nothing about WHOSE inline script was refused, so
-  // on its own it would also mask a CSP violation from our own code. The
-  // "serves no inline script of its own" test below closes that gap by
-  // asserting directly that the only inline block in our HTML is Cloudflare's.
-  'Refused to execute inline script',
 ];
 
+// Cloudflare's JavaScript Detections injects an inline bootstrap for
+// /cdn-cgi/challenge-platform/scripts/jsd/main.js into every HTML response.
+// Our CSP has no 'unsafe-inline', so the browser refuses it -- correctly: the
+// script is not ours and is not served from our origin.
+//
+// It cannot be turned off. On the free plan JavaScript Detections is bound to
+// Bot Fight Mode with no independent switch, and a CSP hash is impossible
+// because the injected body carries per-request r/t parameters, so its hash
+// differs on every load.
+//
+// Matched by concept rather than by phrase, because every engine words it
+// differently and the wording is not stable even within one engine:
+//
+//   Chromium  Executing inline script violates the following Content Security
+//             Policy directive 'script-src 'self''...
+//   WebKit    Refused to execute a script because its hash, its nonce, or
+//             'unsafe-inline' does not appear in the script-src directive...
+//   Firefox   Content-Security-Policy: The page's settings blocked an inline
+//             script (script-src-elem) from being executed...
+//
+// An earlier version of this filter keyed on one Chromium phrasing and matched
+// none of the three in CI.
+//
+// Deliberately requires an INLINE marker: a CSP refusal of an external script
+// stays a failure, because that would be our own code loading something the
+// policy forbids. And this says nothing about WHOSE inline script was refused,
+// so the "serves no inline script of its own" test below closes that gap from
+// the other side.
+function isInlineScriptCspRefusal(msg: string): boolean {
+  if (!/content.security.policy/i.test(msg)) return false;
+  return /inline script/i.test(msg)          // Chromium, Firefox
+    || /its hash, its nonce/i.test(msg);     // WebKit's wording for the same thing
+}
+
 function isAppError(msg: string): boolean {
+  if (isInlineScriptCspRefusal(msg)) return false;
   return !KNOWN_EXTERNAL_PATTERNS.some(p => msg.includes(p));
 }
 
